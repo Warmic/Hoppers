@@ -52,8 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         int count = -1;
-        Random random = new Random();
-
 
          for (int i = 0; i < 5; i++) {
 

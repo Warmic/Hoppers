@@ -30,7 +30,7 @@ public class Pond extends View {
     public ArrayList<Point> points = new ArrayList<>();
 
 
-    public final int rad = 60;
+    public final int rad = 70;
     final double deg = Math.toRadians(45);
 
     Bitmap draggedmap;
@@ -149,8 +149,6 @@ public class Pond extends View {
     public void setup(LiliPads arr[][]) {
         Random rand = new Random();
 
-        //int randx = rand.nextInt(5);
-        //int randy = rand.nextInt(5);
 
         int starti = rand.nextInt(5);
         int startj = rand.nextInt(5);
@@ -167,7 +165,7 @@ public class Pond extends View {
             arr[starti][startj].hasfrog = true;
 
 
-            while (points.size() < 5) {
+            while (points.size() < 7) {
 
                 int size = points.size();
 
@@ -181,7 +179,7 @@ public class Pond extends View {
                     totaltries++;
                 }
 
-                    if (tries > 15) {
+                    if (tries > 500) {
                         tries = 0;
                         points.clear();
                         arr[starti][startj].hasfrog=false;
@@ -194,8 +192,9 @@ public class Pond extends View {
                         points.add(new Point(starti, startj));
                         arr[starti][startj].hasfrog = true;
                     }
+                Log.d("TAGB",totaltries+"");
 
-                }
+            }
                 Log.d("TAGB",totaltries+"");
             }
 
@@ -252,7 +251,44 @@ public class Pond extends View {
 
         if (startj == 0) {
 
-            if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 2][startj + 2].hasfrog == false)) {
+            if ((arr[starti][startj+4].hasfrog==false)&&(arr[starti][startj+2].hasfrog==false)){
+                arr[starti ][startj + 4].hasfrog = true;
+                arr[starti][startj].hasfrog = false;
+                arr[starti ][startj+2].hasfrog = true;
+
+                points.remove(points.indexOf(new Point(starti,startj)));
+                points.add(new Point(starti,startj+4));
+                points.add(new Point(starti,startj+2));
+
+                return arr;
+            }
+            else
+            if ((starti==0)&&(arr[starti+2][startj].hasfrog==false)&&(arr[starti+4][startj].hasfrog==false)){
+                arr[starti +4][startj ].hasfrog = true;
+                arr[starti][startj].hasfrog = false;
+                arr[starti +2][startj].hasfrog = true;
+
+                points.remove(points.indexOf(new Point(starti,startj)));
+                points.add(new Point(starti+4,startj));
+                points.add(new Point(starti+2,startj));
+
+                return arr;
+            }
+            else
+                if ((starti==4)&&(arr[starti-2][startj].hasfrog==false)&&(arr[starti-4][startj].hasfrog==false)){
+                    arr[starti -4][startj ].hasfrog = true;
+                    arr[starti][startj].hasfrog = false;
+                    arr[starti -2][startj].hasfrog = true;
+
+                    points.remove(points.indexOf(new Point(starti,startj)));
+                    points.add(new Point(starti-4,startj));
+                    points.add(new Point(starti-2,startj));
+
+                    return arr;
+                }
+
+
+            else if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 2][startj + 2].hasfrog == false)) {
 
                 arr[starti + 2][startj + 2].hasfrog = true;
                 arr[starti][startj].hasfrog = false;
@@ -276,7 +312,43 @@ public class Pond extends View {
                 return arr;
             } else return arr;
         }
+//-------------------------------------------------------------------------------------
         else if (startj == 4) {
+
+            if ((arr[starti][startj-4].hasfrog==false)&&(arr[starti][startj-2].hasfrog==false)){
+                arr[starti ][startj - 4].hasfrog = true;
+                arr[starti][startj].hasfrog = false;
+                arr[starti ][startj-2].hasfrog = true;
+
+                points.remove(points.indexOf(new Point(starti,startj)));
+                points.add(new Point(starti,startj-4));
+                points.add(new Point(starti,startj-2));
+
+                return arr;
+            }
+            else
+            if ((starti==0)&&(arr[starti+2][startj].hasfrog==false)&&(arr[starti+4][startj].hasfrog==false)){
+                arr[starti +4][startj ].hasfrog = true;
+                arr[starti][startj].hasfrog = false;
+                arr[starti +2][startj].hasfrog = true;
+
+                points.remove(points.indexOf(new Point(starti,startj)));
+                points.add(new Point(starti+4,startj));
+                points.add(new Point(starti+2,startj));
+
+                return arr;
+            }
+            else if ((starti==0)&&(arr[starti+2][startj].hasfrog==false)&&(arr[starti+4][startj].hasfrog==false)){
+                arr[starti +4][startj ].hasfrog = true;
+                arr[starti][startj].hasfrog = false;
+                arr[starti +2][startj].hasfrog = true;
+
+                points.remove(points.indexOf(new Point(starti,startj)));
+                points.add(new Point(starti+4,startj));
+                points.add(new Point(starti+2,startj));
+
+                return arr;
+            }
             if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)) {
 
                 arr[starti][startj].hasfrog = false;
