@@ -9,13 +9,11 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Random;
-
-import static com.example.hoppers.MainActivity.diffx;
-import static com.example.hoppers.MainActivity.diffy;
 
 
 public class Pond extends View {
@@ -23,6 +21,12 @@ public class Pond extends View {
 
     public LiliPads draggedfrog = null;
     public LiliPads liliPads[][] = new LiliPads[5][5];
+
+    public boolean drag;
+    public int startx=-1;
+    public int starty=-1;
+    boolean dragfrog;
+
 
     //We can limit amount of turns by limiting capacity of storage
 
@@ -38,33 +42,14 @@ public class Pond extends View {
     Bitmap frogmap;
     Bitmap lilimap;
     Bitmap background;
+    public int diffx;
+    public int diffy;
 
-    boolean BackgroundUp;
     boolean PadsUp;
 
 
     public Pond(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-
-
-        draggedmap = BitmapFactory.decodeResource(getResources(), R.drawable.frog);
-        redmap = BitmapFactory.decodeResource(getResources(), R.drawable.redfrog);
-        frogmap = BitmapFactory.decodeResource(getResources(), R.drawable.frog);
-        lilimap = BitmapFactory.decodeResource(getResources(), R.drawable.lilipad);
-        background = BitmapFactory.decodeResource(getResources(), R.drawable.images);
-
-        float aspectRatio = lilimap.getWidth() / (float) lilimap.getHeight();
-        int width = diffx;
-        int height = Math.round(width / aspectRatio);
-
-        lilimap = Bitmap.createScaledBitmap(lilimap, width, height, false);
-
-        aspectRatio = frogmap.getWidth() / frogmap.getHeight();
-        height = Math.round(width / aspectRatio);
-
-        frogmap = Bitmap.createScaledBitmap(frogmap, width, height, true);
-        redmap = Bitmap.createScaledBitmap(redmap, width, height, true);
-        background = Bitmap.createScaledBitmap(background, diffx * 6, diffy * 7, true);
 
     }
 
@@ -72,7 +57,44 @@ public class Pond extends View {
     public void onDraw(Canvas canvas) {
 
         Paint paint = new Paint();
+        this.diffx = canvas.getWidth()/6;
+        this.diffy = canvas.getHeight()/6;
 
+        if (liliPads[0][0]==null){
+            int count = -1;
+
+            for (int i = 0; i < 5; i++) {
+                for (int j = 0; j < 5; j++) {
+                    count++;
+                    if (count % 2 == 0) {
+                        liliPads[i][j] = new LiliPads(diffx * i + diffx, j * diffy + diffy, false,false);
+                    }
+                }
+            }
+            Pond.this.setup(liliPads);
+            Log.d("LOG",1+"");
+        }
+
+        if (redmap==null||frogmap==null||lilimap==null||background==null||draggedmap==null){
+            draggedmap = BitmapFactory.decodeResource(getResources(), R.drawable.frog);
+            redmap = BitmapFactory.decodeResource(getResources(), R.drawable.redfrog);
+            frogmap = BitmapFactory.decodeResource(getResources(), R.drawable.frog);
+            lilimap = BitmapFactory.decodeResource(getResources(), R.drawable.lilipad);
+            background = BitmapFactory.decodeResource(getResources(), R.drawable.images);
+
+            float aspectRatio = lilimap.getWidth() / (float) lilimap.getHeight();
+            int width = diffx;
+            int height = Math.round(width / aspectRatio);
+
+            lilimap = Bitmap.createScaledBitmap(lilimap, width, height, false);
+
+            aspectRatio = frogmap.getWidth() / frogmap.getHeight();
+            height = Math.round(width / aspectRatio);
+
+            frogmap = Bitmap.createScaledBitmap(frogmap, width, height, true);
+            redmap = Bitmap.createScaledBitmap(redmap, width, height, true);
+            background = Bitmap.createScaledBitmap(background, diffx * 6, diffy * 7, true);
+        }
 
         canvas.drawBitmap(background, 0, 0, paint);
 
@@ -129,6 +151,7 @@ public class Pond extends View {
                 }
             }
             if (i == 5) PadsUp = true;
+            Log.d("LIL","3");
         }
 
         if (draggedfrog != null) {
@@ -154,89 +177,117 @@ public class Pond extends View {
         int startj = rand.nextInt(5);
 
 
-            int tries = 0;
-            int totaltries =0;
-            points.clear();
-            while (arr[starti][startj] == null) {
+        int tries = 0;
+        int totaltries = 0;
+        points.clear();
+        while (arr[starti][startj] == null) {
+            starti = rand.nextInt(5);
+            startj = rand.nextInt(5);
+        }
+        points.add(new Point(starti, startj));
+
+        arr[starti][startj].is_there_a_red_frog = true;
+
+
+        while (points.size() < 7) {
+
+            int size = points.size();
+
+            for (int i = 0; i < size; i++) {
+                if (points.get(i).x % 2 == 0)
+                    check_if_i_2(points.get(i).x, points.get(i).y, arr);
+                if (points.get(i).x % 2 == 1)
+                    check_if_i_1(points.get(i).x, points.get(i).y, arr);
+                tries++;
+                totaltries++;
+            }
+
+            if (tries > 1500) {
+                tries = 0;
+                points.clear();
+                arr[starti][startj].is_there_a_red_frog = false;
                 starti = rand.nextInt(5);
                 startj = rand.nextInt(5);
-            }
-            points.add(new Point(starti, startj));
-            arr[starti][startj].hasfrog = true;
-
-
-            while (points.size() < 7) {
-
-                int size = points.size();
-
-                for (int i = 0; i < size; i++) {
-                    if (points.get(i).x % 2 == 0)
-                        check_if_i_2(points.get(i).x, points.get(i).y, arr);
-                    if (points.get(i).x % 2 == 1)
-                        check_if_i_1(points.get(i).x, points.get(i).y, arr);
-                    Log.d("TAG", " " + points.size() + " " + 2);
-                    tries++;
-                    totaltries++;
+                while (arr[starti][startj] == null) {
+                    starti = rand.nextInt(5);
+                    startj = rand.nextInt(5);
                 }
-
-                    if (tries > 500) {
-                        tries = 0;
-                        points.clear();
-                        arr[starti][startj].hasfrog=false;
-                        starti = rand.nextInt(5);
-                        startj = rand.nextInt(5);
-                        while (arr[starti][startj] == null) {
-                            starti = rand.nextInt(5);
-                            startj = rand.nextInt(5);
-                        }
-                        points.add(new Point(starti, startj));
-                        arr[starti][startj].hasfrog = true;
-                    }
-                Log.d("TAGB",totaltries+"");
-
+                points.add(new Point(starti, startj));
+                arr[starti][startj].is_there_a_red_frog = true;
             }
-                Log.d("TAGB",totaltries+"");
-            }
+
+        }
+        Log.d("TAGB", totaltries + "");
+    }
 
 
     public LiliPads[][] check_if_i_1(int starti, int startj, LiliPads arr[][]) {
 
 
-            if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 2][startj + 2].hasfrog == false)) {
+            if ( (starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false)&&(arr[starti + 1][startj + 1].is_there_a_red_frog == false)
+                    && (arr[starti + 2][startj + 2].hasfrog == false) && (arr[starti + 2][startj + 2].is_there_a_red_frog == false)) {
                 arr[starti + 1][startj + 1].hasfrog = true;
-                arr[starti][startj].hasfrog = false;
-                arr[starti + 2][startj + 2].hasfrog = true;
+                if (arr[starti][startj].hasfrog) {
+                    arr[starti][startj].hasfrog = false;
+                    arr[starti + 2][startj + 2].hasfrog = true;
+                }
+                else if (arr[starti][startj].is_there_a_red_frog){
+                    arr[starti + 2][startj + 2].is_there_a_red_frog = true;
+                    arr[starti ][startj].is_there_a_red_frog = false;
+                }
 
                 points.remove(points.indexOf(new Point(starti, startj)));
                 points.add(new Point(starti + 1, startj + 1));
                 points.add(new Point(starti + 2, startj + 2));
 
                 return arr;
-            } else if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)) {
+            } else if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)
+                    &&(arr[starti + 1][startj - 1].is_there_a_red_frog == false) && (arr[starti + 2][startj - 2].is_there_a_red_frog == false)) {
 
                 arr[starti + 1][startj - 1].hasfrog = true;
-                arr[starti][startj].hasfrog = false;
-                arr[starti + 2][startj - 2].hasfrog = true;
+                if (arr[starti][startj].hasfrog){
+                    arr[starti][startj].hasfrog = false;
+                    arr[starti + 2][startj - 2].hasfrog = true;
+                }
+                else if (arr[starti][startj].is_there_a_red_frog){
+                    arr[starti][startj].is_there_a_red_frog = false;
+                    arr[starti + 2][startj - 2].is_there_a_red_frog = true;
+                }
 
                 points.remove(points.indexOf(new Point(starti, startj)));
                 points.add(new Point(starti + 1, startj - 1));
                 points.add(new Point(starti + 2, startj - 2));
 
                 return arr;
-            } else if ((starti > 3) && (startj > 3) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)) {
+            } else if ((starti > 3) && (startj > 3) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)
+                    &&(arr[starti - 1][startj - 1].is_there_a_red_frog == false) && (arr[starti - 2][startj - 2].is_there_a_red_frog == false) ) {
                 arr[starti - 1][startj - 1].hasfrog = true;
-                arr[starti][startj].hasfrog = false;
-                arr[starti - 2][startj - 2].hasfrog = true;
+                if (arr[starti][startj].hasfrog ){
+                    arr[starti][startj].hasfrog = false;
+                    arr[starti - 2][startj - 2].hasfrog = true;
+                }
+                else if (arr[starti][startj].is_there_a_red_frog ){
+                    arr[starti][startj].is_there_a_red_frog = false;
+                    arr[starti - 2][startj - 2].is_there_a_red_frog = true;
+                }
 
                 points.remove(points.indexOf(new Point(starti, startj)));
                 points.add(new Point(starti - 1, startj - 1));
                 points.add(new Point(starti - 2, startj - 2));
 
                 return arr;
-            } else if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)) {
+            } else if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)
+                    &&(arr[starti - 1][startj + 1].is_there_a_red_frog == false) && (arr[starti - 2][startj + 2].is_there_a_red_frog == false) ) {
                 arr[starti - 1][startj + 1].hasfrog = true;
-                arr[starti][startj].hasfrog = false;
-                arr[starti - 2][startj + 2].hasfrog = true;
+                if (arr[starti][startj].hasfrog ){
+                    arr[starti][startj].hasfrog = false;
+                    arr[starti - 2][startj + 2].hasfrog = true;
+                }
+                else if (arr[starti][startj].is_there_a_red_frog ){
+                    arr[starti][startj].is_there_a_red_frog = false;
+                    arr[starti - 2][startj + 2].is_there_a_red_frog = true;
+                }
+
 
                 points.remove(points.indexOf(new Point(starti, startj)));
                 points.add(new Point(starti - 1, startj + 1));
@@ -251,11 +302,17 @@ public class Pond extends View {
 
         if (startj == 0) {
 
-            if ((arr[starti][startj+4].hasfrog==false)&&(arr[starti][startj+2].hasfrog==false)){
-                arr[starti ][startj + 4].hasfrog = true;
-                arr[starti][startj].hasfrog = false;
+            if ((arr[starti][startj+4].hasfrog==false)&&(arr[starti][startj+2].hasfrog==false)
+                    &&(arr[starti][startj+4].is_there_a_red_frog==false)&&(arr[starti][startj+2].is_there_a_red_frog==false) ){
                 arr[starti ][startj+2].hasfrog = true;
-
+                if (arr[starti][startj].hasfrog ){
+                    arr[starti][startj].hasfrog = false;
+                    arr[starti ][startj + 4].hasfrog = true;
+                }
+                else if (arr[starti][startj].is_there_a_red_frog ){
+                    arr[starti][startj].is_there_a_red_frog = false;
+                    arr[starti ][startj + 4].is_there_a_red_frog = true;
+                }
                 points.remove(points.indexOf(new Point(starti,startj)));
                 points.add(new Point(starti,startj+4));
                 points.add(new Point(starti,startj+2));
@@ -263,10 +320,17 @@ public class Pond extends View {
                 return arr;
             }
             else
-            if ((starti==0)&&(arr[starti+2][startj].hasfrog==false)&&(arr[starti+4][startj].hasfrog==false)){
-                arr[starti +4][startj ].hasfrog = true;
-                arr[starti][startj].hasfrog = false;
+            if ((starti==0)&&(arr[starti+2][startj].hasfrog==false)&&(arr[starti+4][startj].hasfrog==false)
+                    &&(arr[starti+2][startj].is_there_a_red_frog==false)&&(arr[starti+4][startj].is_there_a_red_frog==false)){
                 arr[starti +2][startj].hasfrog = true;
+                if (arr[starti][startj].hasfrog ){
+                    arr[starti][startj].hasfrog = false;
+                    arr[starti + 4][startj].hasfrog = true;
+                }
+                else if (arr[starti][startj].is_there_a_red_frog ){
+                    arr[starti][startj].is_there_a_red_frog = false;
+                    arr[starti +4][startj ].is_there_a_red_frog = true;
+                }
 
                 points.remove(points.indexOf(new Point(starti,startj)));
                 points.add(new Point(starti+4,startj));
@@ -275,10 +339,17 @@ public class Pond extends View {
                 return arr;
             }
             else
-                if ((starti==4)&&(arr[starti-2][startj].hasfrog==false)&&(arr[starti-4][startj].hasfrog==false)){
-                    arr[starti -4][startj ].hasfrog = true;
-                    arr[starti][startj].hasfrog = false;
+                if ((starti==4)&&(arr[starti-2][startj].hasfrog==false)&&(arr[starti-4][startj].hasfrog==false)
+                        &&(arr[starti-2][startj].is_there_a_red_frog==false)&&(arr[starti-4][startj].is_there_a_red_frog==false) ){
                     arr[starti -2][startj].hasfrog = true;
+                    if (arr[starti][startj].hasfrog ){
+                        arr[starti][startj].hasfrog = false;
+                        arr[starti -4][startj].hasfrog = true;
+                    }
+                    else if (arr[starti][startj].is_there_a_red_frog ){
+                        arr[starti][startj].is_there_a_red_frog = false;
+                        arr[starti - 4][startj].is_there_a_red_frog = true;
+                    }
 
                     points.remove(points.indexOf(new Point(starti,startj)));
                     points.add(new Point(starti-4,startj));
@@ -288,23 +359,33 @@ public class Pond extends View {
                 }
 
 
-            else if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 2][startj + 2].hasfrog == false)) {
-
-                arr[starti + 2][startj + 2].hasfrog = true;
-                arr[starti][startj].hasfrog = false;
+            else if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 2][startj + 2].hasfrog == false)
+                        &&(arr[starti + 1][startj + 1].is_there_a_red_frog == false) && (arr[starti + 2][startj + 2].is_there_a_red_frog == false) ) {
                 arr[starti + 1][startj+1].hasfrog = true;
-
+                if (arr[starti][startj].hasfrog ){
+                    arr[starti][startj].hasfrog = false;
+                    arr[starti + 2][startj+2].hasfrog = true;
+                }
+                else if (arr[starti][startj].is_there_a_red_frog ){
+                        arr[starti][startj].is_there_a_red_frog = false;
+                        arr[starti + 2][startj+2].is_there_a_red_frog = true;
+                    }
                 points.remove(points.indexOf(new Point(starti,startj)));
                 points.add(new Point(starti+1,startj+1));
                 points.add(new Point(starti+2,startj+2));
 
                 return arr;
-            } else if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)) {
-
-                arr[starti][startj].hasfrog = false;
+            } else if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)
+                        &&(arr[starti - 1][startj + 1].is_there_a_red_frog == false) && (arr[starti - 2][startj + 2].is_there_a_red_frog == false) ) {
                 arr[starti - 1][startj+1].hasfrog = true;
-                arr[starti - 2][startj + 2].hasfrog = true;
-
+                if (arr[starti][startj].hasfrog ){
+                        arr[starti][startj].hasfrog = false;
+                        arr[starti - 2][startj+2].hasfrog = true;
+                    }
+                else if (arr[starti][startj].is_there_a_red_frog){
+                        arr[starti][startj].is_there_a_red_frog = false;
+                        arr[starti - 2][startj+2].is_there_a_red_frog = true;
+                    }
                 points.remove(points.indexOf(new Point(starti,startj)));
                 points.add(new Point(starti-1,startj+1));
                 points.add(new Point(starti-2,startj+2));
@@ -315,11 +396,17 @@ public class Pond extends View {
 //-------------------------------------------------------------------------------------
         else if (startj == 4) {
 
-            if ((arr[starti][startj-4].hasfrog==false)&&(arr[starti][startj-2].hasfrog==false)){
-                arr[starti ][startj - 4].hasfrog = true;
-                arr[starti][startj].hasfrog = false;
+            if ((arr[starti][startj-4].hasfrog==false)&&(arr[starti][startj-2].hasfrog==false)
+                    &&(arr[starti][startj-4].is_there_a_red_frog==false)&&(arr[starti][startj-2].is_there_a_red_frog==false)){
                 arr[starti ][startj-2].hasfrog = true;
-
+                if (arr[starti][startj].hasfrog ){
+                    arr[starti][startj].hasfrog = false;
+                    arr[starti][startj-4].hasfrog = true;
+                }
+                else if (arr[starti][startj].is_there_a_red_frog ){
+                    arr[starti][startj].is_there_a_red_frog = false;
+                    arr[starti][startj-4].is_there_a_red_frog= true;
+                }
                 points.remove(points.indexOf(new Point(starti,startj)));
                 points.add(new Point(starti,startj-4));
                 points.add(new Point(starti,startj-2));
@@ -327,44 +414,55 @@ public class Pond extends View {
                 return arr;
             }
             else
-            if ((starti==0)&&(arr[starti+2][startj].hasfrog==false)&&(arr[starti+4][startj].hasfrog==false)){
-                arr[starti +4][startj ].hasfrog = true;
-                arr[starti][startj].hasfrog = false;
+            if ((starti==0)&&(arr[starti+2][startj].hasfrog==false)&&(arr[starti+4][startj].hasfrog==false)
+                    &&(arr[starti+2][startj].is_there_a_red_frog==false)&&(arr[starti+4][startj].is_there_a_red_frog==false)){
                 arr[starti +2][startj].hasfrog = true;
 
+                if (arr[starti][startj].hasfrog ){
+                    arr[starti][startj].hasfrog = false;
+                    arr[starti+4][startj].hasfrog = true;
+                }
+                else if (arr[starti][startj].is_there_a_red_frog){
+                    arr[starti][startj].is_there_a_red_frog = false;
+                    arr[starti+4][startj].is_there_a_red_frog = true;
+                }
                 points.remove(points.indexOf(new Point(starti,startj)));
                 points.add(new Point(starti+4,startj));
                 points.add(new Point(starti+2,startj));
 
                 return arr;
             }
-            else if ((starti==0)&&(arr[starti+2][startj].hasfrog==false)&&(arr[starti+4][startj].hasfrog==false)){
-                arr[starti +4][startj ].hasfrog = true;
-                arr[starti][startj].hasfrog = false;
-                arr[starti +2][startj].hasfrog = true;
-
-                points.remove(points.indexOf(new Point(starti,startj)));
-                points.add(new Point(starti+4,startj));
-                points.add(new Point(starti+2,startj));
-
-                return arr;
-            }
-            if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)) {
-
-                arr[starti][startj].hasfrog = false;
+            else
+            if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)
+                    && (arr[starti + 1][startj - 1].is_there_a_red_frog == false) && (arr[starti + 2][startj - 2].is_there_a_red_frog == false)) {
                 arr[starti + 1][startj-1].hasfrog = true;
-                arr[starti + 2][startj - 2].hasfrog = true;
 
+                if (arr[starti][startj].hasfrog ){
+                    arr[starti][startj].hasfrog = false;
+                    arr[starti+2][startj-2].hasfrog = true;
+                }
+                else   if (arr[starti][startj].is_there_a_red_frog ){
+                    arr[starti][startj].is_there_a_red_frog= false;
+                    arr[starti+2][startj-2].is_there_a_red_frog = true;
+                }
                 points.remove(points.indexOf(new Point(starti,startj)));
                 points.add(new Point(starti+1,startj-1));
                 points.add(new Point(starti+2,startj-2));
 
                 return arr;
-            } else if ((starti > 1) && (startj > 1) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)) {
+            } else if ((starti > 1) && (startj > 1) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)
+                    &&(arr[starti - 1][startj - 1].is_there_a_red_frog == false) && (arr[starti - 2][startj - 2].is_there_a_red_frog == false) ) {
 
-                arr[starti][startj].hasfrog = false;
                 arr[starti - 1][startj-1].hasfrog = true;
-                arr[starti - 2][startj - 2].hasfrog = true;
+
+                if (arr[starti][startj].hasfrog ){
+                    arr[starti][startj].hasfrog = false;
+                    arr[starti-2][startj-2].hasfrog = true;
+                }
+                else if (arr[starti][startj].is_there_a_red_frog ){
+                    arr[starti][startj].is_there_a_red_frog = false;
+                    arr[starti-2][startj-2].is_there_a_red_frog = true;
+                }
 
                 points.remove(points.indexOf(new Point(starti,startj)));
                 points.add(new Point(starti-1,startj-1));
@@ -377,6 +475,180 @@ public class Pond extends View {
             return check_if_i_1(starti, startj, arr);
         }
         else return arr;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        boolean found;
+
+        float x = event.getX();
+        float y = event.getY();
+
+
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+            startx = -1;
+            starty = -1;
+
+            outerloop:
+            for (int i = 0; i < 5; i++) {
+                for (int j = 0; j < 5; j++) {
+
+                    if ( (liliPads[i][j]!=null)&&(Math.sqrt(Math.pow(liliPads[i][j].x-x, 2) + Math.pow(liliPads[i][j].y-y, 2)) <= rad)
+                            &&((liliPads[i][j].hasfrog==true)||(liliPads[i][j].is_there_a_red_frog==true)))
+                    {
+                        startx=i;
+                        starty=j;
+                        if (liliPads[i][j].hasfrog) {
+                            liliPads[i][j].hasfrog = false;
+                            draggedfrog = new LiliPads(liliPads[i][j].x, liliPads[i][j].y,true,false);
+                        }
+                        else if (liliPads[i][j].is_there_a_red_frog==true){
+                            liliPads[i][j].is_there_a_red_frog=false;
+                            draggedfrog = new LiliPads(liliPads[i][j].x,liliPads[i][j].y,false,true);
+                            dragfrog=true;
+                        }
+                        drag = true;
+                        break outerloop;
+
+                    }
+                }
+            }
+            return true;
+        }
+        else
+        if (event.getAction() == MotionEvent.ACTION_MOVE) {
+            if (drag == true) {
+
+                if (dragfrog == false) {
+                    draggedfrog = new LiliPads(x, y ,true,false);
+                } else {
+                    draggedfrog = new LiliPads(x, y , false, true);
+                }
+            }
+            return true;
+        }
+        else
+            if (event.getAction()== MotionEvent.ACTION_UP)
+            {
+                drag = false;
+                found = false;
+                outerloop:
+                for (int i = 0; i < 5; i++) {
+                    for (int j = 0; j < 5; j++) {
+                        if ((liliPads[i][j]!=null)&&(Math.pow(liliPads[i][j].x - x, 2) + Math.pow(liliPads[i][j].y - y, 2) < Math.pow(rad, 2))
+                                &&(liliPads[i][j].hasfrog==false)&&(liliPads[i][j].is_there_a_red_frog==false)&&(draggedfrog!=null))
+                        {
+                            found=true;
+
+                            if ((starty!=j)&&(startx==i)&&(liliPads[i][2]!=null)&&(liliPads[i][2].hasfrog==true)
+                                    &&(Math.abs(starty-j)==4)&&(liliPads[i][2].is_there_a_red_frog==false)){
+                                liliPads[i][2].hasfrog=false;
+                                if (dragfrog==false)
+                                {
+                                    liliPads[i][j].hasfrog=true;
+                                    moves.add(new Move(startx,starty,i,j,i,2,false));
+                                }
+                                else {
+                                    liliPads[i][j].is_there_a_red_frog=true;
+                                    dragfrog=false;
+                                    moves.add(new Move(startx,starty,i,j,i,2,true));
+                                }
+                            }
+                            //horisontal
+                            else if ((starty==j)&&(startx!=i)&&(liliPads[2][j]!=null)&&(liliPads[2][j].hasfrog==true)
+                                    &&(Math.abs(startx-i)==4)&&(liliPads[2][j].is_there_a_red_frog==false)){
+                                liliPads[2][j].hasfrog=false;
+                                if (dragfrog==false) {
+                                    liliPads[i][j].hasfrog = true;
+                                    moves.add(new Move(startx,starty,i,j,2,j,false));
+                                }
+                                else {
+                                    liliPads[i][j].is_there_a_red_frog=true;
+                                    dragfrog=false;
+                                    moves.add(new Move(startx,starty,i,j,2,j,true));
+                                }
+                            }
+                            //vertical
+                            else if ((Math.abs(startx-i)==2)&&(Math.abs(starty-j)==2)) {
+
+                                if (i > startx) {
+                                    if (j > starty) {
+                                        if ((liliPads[startx + 1][starty + 1].is_there_a_red_frog == false) && (liliPads[startx + 1][starty + 1].hasfrog == true)) {
+                                            liliPads[startx + 1][starty + 1].hasfrog = false;
+                                            if (dragfrog == false) {
+                                                moves.add(new Move(startx,starty,i,j,startx+1,starty+1,false));
+                                                liliPads[i][j].hasfrog = true;
+                                            }
+                                            else {
+                                                moves.add(new Move(startx,starty,i,j,startx+1,starty+1,true));
+                                                liliPads[i][j].is_there_a_red_frog = true;
+                                                dragfrog = false;
+                                            }
+                                        } else found=false;
+                                    } else {
+                                        if ((liliPads[startx + 1][starty - 1].is_there_a_red_frog == false) && (liliPads[startx + 1][starty - 1].hasfrog == true)) {
+                                            liliPads[startx + 1][starty - 1].hasfrog = false;
+                                            if (dragfrog == false) {
+                                                moves.add(new Move(startx,starty,i,j,startx+1,starty-1,false));
+                                                liliPads[i][j].hasfrog = true;
+                                            }
+                                            else {
+                                                moves.add(new Move(startx,starty,i,j,startx+1,starty-1,true));
+                                                liliPads[i][j].is_there_a_red_frog = true;
+                                            }
+                                            dragfrog = false;
+                                        } else found=false;
+                                    }
+
+                                } else if (j > starty) {
+
+                                    if ((liliPads[startx - 1][starty + 1].is_there_a_red_frog == false) && (liliPads[startx - 1][starty + 1].hasfrog == true)) {
+                                        liliPads[startx - 1][starty + 1].hasfrog = false;
+                                        if (dragfrog == false) {
+                                            moves.add(new Move(startx,starty,i,j,startx-1,starty+1,false));
+                                            liliPads[i][j].hasfrog = true;
+                                        }
+                                        else {
+                                            liliPads[i][j].is_there_a_red_frog = true;
+                                            moves.add(new Move(startx,starty,i,j,startx-1,starty+1,true));
+                                        }
+                                        dragfrog = false;
+                                    } else found=false;
+                                } else if ((liliPads[startx - 1][starty - 1].is_there_a_red_frog == false) && (liliPads[startx - 1][starty - 1].hasfrog == true)) {
+                                    liliPads[startx - 1][starty - 1].hasfrog = false;
+                                    if (dragfrog == false) {
+                                       moves.add(new Move(startx,starty,i,j,startx-1,starty-1,false));
+                                       liliPads[i][j].hasfrog = true;
+                                    }
+                                    else {
+                                        moves.add(new Move(startx,starty,i,j,startx-1,starty-1,true));
+                                        liliPads[i][j].is_there_a_red_frog = true;
+                                        dragfrog = false;
+                                    }
+                                } else found=false;
+                            }
+
+                            //For debugging
+                            else {found=false;}
+                            break outerloop;
+                        }
+                    }
+                }
+                if (found==false&&startx!=-1&&starty!=-1) {
+                    if (dragfrog==false)
+                        liliPads[startx][starty].hasfrog=true;
+                    else {
+                        liliPads[startx][starty].is_there_a_red_frog=true;
+                        dragfrog=false;
+                    }
+                }
+
+                draggedfrog=null;
+                return  true;
+            }
+        return super.onTouchEvent(event);
     }
 
 }

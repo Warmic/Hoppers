@@ -1,10 +1,5 @@
 package com.example.hoppers;
 
-import android.graphics.Point;
-
-import java.util.ArrayList;
-import java.util.Random;
-
 
 
 public class LiliPads {
