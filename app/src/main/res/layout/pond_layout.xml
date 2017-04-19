@@ -4,18 +4,19 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-
-    <com.example.hoppers.MainBackground
+    <com.example.hoppers.InnerPond
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:id="@+id/wiewska"
         />
 
-    <Button
-        android:text="RandomLevel"
+    <ImageButton
+        android:text="Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background = "@drawable/roundbutton"
+        android:src="@drawable/prefbut"
         android:id="@+id/stepback" />
+
 
 </RelativeLayout>
