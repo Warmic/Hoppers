@@ -2,6 +2,9 @@ package com.example.hoppers;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -22,6 +25,7 @@ public class SetofStoryDifficulties extends Activity {
     public ListView lvStoryLevels;
     public SetofStoryDifficultiesAdapter adapter;
     public List<StoryLevelSetClass> levelSetClassList;
+    public ArrayList<Point> completed_and_total;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,15 +35,31 @@ public class SetofStoryDifficulties extends Activity {
         lvStoryLevels = (ListView) findViewById(R.id.storylevellist);
 
         levelSetClassList = new ArrayList<>();
+        completed_and_total = new ArrayList<>();
 
-        levelSetClassList.add(new StoryLevelSetClass(4,10));
-        levelSetClassList.add(new StoryLevelSetClass(5,10));
-        levelSetClassList.add(new StoryLevelSetClass(6,10));
-        levelSetClassList.add(new StoryLevelSetClass(7,10));
-        levelSetClassList.add(new StoryLevelSetClass(8,10));
-        levelSetClassList.add(new StoryLevelSetClass(9,10));
-        levelSetClassList.add(new StoryLevelSetClass(10,10));
-        levelSetClassList.add(new StoryLevelSetClass(11,2));
+        DatabaseHandler dbh = new DatabaseHandler(this);
+        SQLiteDatabase db = dbh.getReadableDatabase();
+
+        for (int i = 4; i <= 11; i++) {
+
+            String selectQuery = "SELECT  * FROM " + DatabaseHandler.TABLE_DIFFICULTIES + " where "+DatabaseHandler.DIFFICULTY +" = " + i;
+
+            int count_completed = 0;
+            int count_total = 0;
+
+            Cursor cursor = db.rawQuery(selectQuery, null);
+
+            if (cursor.moveToFirst()) {
+                do {
+                    if (cursor.getInt(cursor.getColumnIndex("completed")) ==1) count_completed++;
+                    count_total++;
+                } while (cursor.moveToNext());
+            }
+            levelSetClassList.add(new StoryLevelSetClass(i,count_total,count_completed));
+
+            cursor.close();
+        }
+
 
         adapter = new SetofStoryDifficultiesAdapter(getApplicationContext(),levelSetClassList);
 

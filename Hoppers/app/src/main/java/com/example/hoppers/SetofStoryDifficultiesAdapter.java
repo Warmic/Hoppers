@@ -44,7 +44,8 @@ public class SetofStoryDifficultiesAdapter extends BaseAdapter {
         TextView amountoffrogs = (TextView) v.findViewById(R.id.amountoffrogs);
         TextView levelscompleted = (TextView) v.findViewById(R.id.levelscompleted);
         amountoffrogs.setText("Difficulty : "+String.valueOf(list.get(position).getAmountoffrogs()));
-        levelscompleted.setText("Completed levels : "+String.valueOf(list.get(position).getTotallevels()));
+        levelscompleted.setText("Completed levels : "+String.valueOf(list.get(position).getLevels_completed())+
+                "/"+String.valueOf(list.get(position).getTotallevels()));
 
         v.setTag(list.get(position));
         return v;

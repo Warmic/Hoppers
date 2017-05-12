@@ -95,7 +95,6 @@ public class ChosenLevel extends Activity {
         for (String a:list
                 ) {
             if (tag.length()==1) tag = "0"+tag;
-            Log.d("Catch",a.substring(0,2)+"   "+tag);
             if ((a.substring(0,2)).equals(tag)) return a.substring(2,a.length());
         }
         return null;

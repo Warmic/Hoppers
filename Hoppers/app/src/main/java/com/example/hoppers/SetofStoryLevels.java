@@ -6,6 +6,7 @@ import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Button;
@@ -18,11 +19,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by Peter on 05.05.2017.
- */
 
 public class SetofStoryLevels extends Activity {
 
@@ -32,6 +31,7 @@ public class SetofStoryLevels extends Activity {
         setContentView(R.layout.chosen_story_level);
 
         List<Integer> buttonids = new ArrayList(){};
+
         buttonids.add(R.id._1);
         buttonids.add(R.id._2);
         buttonids.add(R.id._3);
@@ -50,6 +50,7 @@ public class SetofStoryLevels extends Activity {
         }
 
         ArrayList<Integer> iviewsids = new ArrayList<>();
+
         iviewsids.add(R.id._iv1);
         iviewsids.add(R.id._iv2);
         iviewsids.add(R.id._iv3);
@@ -61,24 +62,28 @@ public class SetofStoryLevels extends Activity {
         iviewsids.add(R.id._iv9);
 
         DatabaseHandler dbh = new DatabaseHandler(this);
-
-        String selectQuery = "SELECT  * FROM " + "difficulties" +" where difficulty ="+getIntent().getIntExtra("Level",0);
         SQLiteDatabase db = dbh.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
 
         ArrayList<Integer> data = new ArrayList<>();
 
+        String selectQuery = "SELECT  * FROM " + DatabaseHandler.TABLE_DIFFICULTIES + " where "+DatabaseHandler.DIFFICULTY +" = " + getIntent().getIntExtra("Level",0);
+
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+
             if (cursor.moveToFirst()) {
                 do {
-                    data.add(cursor.getInt(cursor.getColumnIndex("completed")));
+                    data.add(cursor.getInt(cursor.getColumnIndex(DatabaseHandler.COMPLETED)));
                 } while (cursor.moveToNext());
             }
             cursor.close();
 
-        for (Integer integ:data
-             ) {
-            if (integ==1) {
-                ImageView image = (ImageView) findViewById(iviewsids.get(data.indexOf(integ)-1));
+        for (int i = 0; i < data.size(); i++) {
+
+            Integer integ = data.get(i);
+
+            if (integ == 1) {
+                ImageView image = (ImageView) findViewById(iviewsids.get(i));
                 image.setVisibility(View.VISIBLE);
             }
         }
@@ -129,7 +134,6 @@ public class SetofStoryLevels extends Activity {
              ) {
             String tag = (String) v.getTag();
             if (tag.length()==1) tag = "0"+tag;
-            Log.d("Catch",a.substring(0,2)+"   "+tag);
             if ((a.substring(0,2)).equals(tag)) return a.substring(2,a.length());
         }
         return null;

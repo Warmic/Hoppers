@@ -63,7 +63,7 @@ public class Pond extends View {
     public boolean levelfinished;
     public boolean setupcomplete;
     public boolean drag;
-    public boolean messageshown = false;
+    public boolean messageshown ;
 
 
 
@@ -228,19 +228,16 @@ public class Pond extends View {
         if (moves.size()==points.size()-1) {
             levelfinished =true;
             if (current>0){
+
                 DatabaseHandler dbh = new DatabaseHandler(getContext());
 
-                /*String insertQuery = "INSERT  INTO  completed " +" where difficulty = "+total+" and level = "+current +" VALUES (1)";
-                db.execSQL(insertQuery);
-                */
-                SQLiteDatabase db = dbh.getReadableDatabase();
-                ContentValues values = new ContentValues();
-                values.put("difficulty",total);
-                values.put("level",current);
-                values.put("completed",1);
-                db.insert("difficulties", null, values);
-                db.close();
+                SQLiteDatabase db = dbh.getWritableDatabase();
 
+                String insertQuery = "UPDATE difficulties  SET completed=1 where difficulty is'"+points.size()+"' AND level is '"+current+"'" ;
+
+                db.execSQL(insertQuery);
+
+                db.close();
             }
         } else levelfinished = false;
 
@@ -255,13 +252,12 @@ public class Pond extends View {
                                     intent.putExtra("Map", nextmap);
                                     intent.putExtra("IsStory", "xd");
                                     intent.putExtra("Current", current + 1 + "");
-                                    intent.putExtra("Level", points.size() + 1);
+                                    intent.putExtra("Level", points.size() );
                                     intent.putExtra("Total", total);
 
                                 getContext().startActivity(intent);
                             }
                         })
-
                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
@@ -272,8 +268,9 @@ public class Pond extends View {
                 messageshown = true;
         }
         if (levelfinished&&randomlevel&&messageshown==false){
+
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setMessage("Congratulations! \n Next level?")
+            builder.setMessage("    Congratulations!     \n     Next level?     ")
                     .setCancelable(false)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
@@ -301,7 +298,7 @@ public class Pond extends View {
 
 
     //------------------------------------------------------------------------------------------------------------------------------
-    //FINISHEDRAWING
+    //FINISHED_DRAWING
 
     public void setup(LiliPads arr[][]) {
         Random rand = new Random();
@@ -309,11 +306,11 @@ public class Pond extends View {
 
         int starti = rand.nextInt(5);
         int startj = rand.nextInt(5);
+
         thislevel ="";
 
 
         int tries = 0;
-        int totaltries = 0;
         points.clear();
 
 
@@ -326,24 +323,26 @@ public class Pond extends View {
 
         arr[starti][startj].is_there_a_red_frog = true;
 
-
         while (points.size() != amountoffrogs) {
 
             int size = points.size();
 
-            for (int i = 0; i < size; i++) {
-                if (points.get(i).x % 2 == 0)
-                    check_if_i_2(points.get(i).x, points.get(i).y, arr);
-                if (points.get(i).x % 2 == 1)
-                    check_if_i_1(points.get(i).x, points.get(i).y, arr);
-                tries++;
-                totaltries++;
+                for (int i = 0; i < size; i++) {
+
+                    if (points.get(i).x % 2 == 0)
+                        check_if_i_2(points.get(i).x, points.get(i).y, arr);
+
+                    if (points.get(i).x % 2 == 1)
+                        check_if_i_1(points.get(i).x, points.get(i).y, arr);
+                    tries++;
+
+
             }
 
             if (tries > 500) {
 
+
                 tries = 0;
-                int sizep = points.size();
                 points.clear();
 
                 int count = -1;
@@ -357,7 +356,6 @@ public class Pond extends View {
                     }
                 }
 
-                arr[starti][startj].is_there_a_red_frog = false;
 
                 //-------------------CLREARING MAP,ARRAY OF POINTS TO COME UP WITH A NEW SETUP
 
@@ -366,9 +364,13 @@ public class Pond extends View {
                 while (arr[starti][startj] == null) {
                     starti = rand.nextInt(5);
                     startj = rand.nextInt(5);
+                    Log.d("st",starti +" "+startj);
+
                 }
+
                 points.add(new Point(starti, startj));
                 arr[starti][startj].is_there_a_red_frog = true;
+
                  }
 
         }
@@ -468,186 +470,183 @@ public class Pond extends View {
 
     public LiliPads[][] check_if_i_2(int starti, int startj, LiliPads arr[][]) {
 
-        if (startj == 0) {
 
-            if ((arr[starti][startj + 4].hasfrog == false) && (arr[starti][startj + 2].hasfrog == false)
-                    && (arr[starti][startj + 4].is_there_a_red_frog == false) && (arr[starti][startj + 2].is_there_a_red_frog == false)) {
-                arr[starti][startj + 2].hasfrog = true;
+                if ((startj == 0)&&(arr[starti][startj + 4].hasfrog == false) && (arr[starti][startj + 2].hasfrog == false)
+                        && (arr[starti][startj + 4].is_there_a_red_frog == false) && (arr[starti][startj + 2].is_there_a_red_frog == false)) {
+                    arr[starti][startj + 2].hasfrog = true;
 
-                if (arr[starti][startj].hasfrog) {
-                    arr[starti][startj].hasfrog = false;
-                    arr[starti][startj + 4].hasfrog = true;
-                } else if (arr[starti][startj].is_there_a_red_frog) {
-                    arr[starti][startj].is_there_a_red_frog = false;
-                    arr[starti][startj + 4].is_there_a_red_frog = true;
+                    if (arr[starti][startj].hasfrog) {
+                        arr[starti][startj].hasfrog = false;
+                        arr[starti][startj + 4].hasfrog = true;
+                    } else if (arr[starti][startj].is_there_a_red_frog) {
+                        arr[starti][startj].is_there_a_red_frog = false;
+                        arr[starti][startj + 4].is_there_a_red_frog = true;
+                    }
+                    points.remove(points.indexOf(new Point(starti, startj)));
+                    points.add(new Point(starti, startj + 4));
+                    points.add(new Point(starti, startj + 2));
+
+                    return arr;
+                } else if ((startj == 0)&&(starti == 0) && (arr[starti + 2][startj].hasfrog == false) && (arr[starti + 4][startj].hasfrog == false)
+                        && (arr[starti + 2][startj].is_there_a_red_frog == false) && (arr[starti + 4][startj].is_there_a_red_frog == false)) {
+                    arr[starti + 2][startj].hasfrog = true;
+                    if (arr[starti][startj].hasfrog) {
+                        arr[starti][startj].hasfrog = false;
+                        arr[starti + 4][startj].hasfrog = true;
+                    } else if (arr[starti][startj].is_there_a_red_frog) {
+                        arr[starti][startj].is_there_a_red_frog = false;
+                        arr[starti + 4][startj].is_there_a_red_frog = true;
+                    }
+
+                    points.remove(points.indexOf(new Point(starti, startj)));
+                    points.add(new Point(starti + 4, startj));
+                    points.add(new Point(starti + 2, startj));
+
+                    return arr;
+                } else if ((startj == 0)&&(starti == 4) && (arr[starti - 2][startj].hasfrog == false) && (arr[starti - 4][startj].hasfrog == false)
+                        && (arr[starti - 2][startj].is_there_a_red_frog == false) && (arr[starti - 4][startj].is_there_a_red_frog == false)) {
+                    arr[starti - 2][startj].hasfrog = true;
+                    if (arr[starti][startj].hasfrog) {
+                        arr[starti][startj].hasfrog = false;
+                        arr[starti - 4][startj].hasfrog = true;
+                    } else if (arr[starti][startj].is_there_a_red_frog) {
+                        arr[starti][startj].is_there_a_red_frog = false;
+                        arr[starti - 4][startj].is_there_a_red_frog = true;
+                    }
+
+                    points.remove(points.indexOf(new Point(starti, startj)));
+                    points.add(new Point(starti - 4, startj));
+                    points.add(new Point(starti - 2, startj));
+
+                    return arr;
                 }
-                points.remove(points.indexOf(new Point(starti, startj)));
-                points.add(new Point(starti, startj + 4));
-                points.add(new Point(starti, startj + 2));
+    //-------------------------------------------------------------------------------------
 
-                return arr;
-            } else if ((starti == 0) && (arr[starti + 2][startj].hasfrog == false) && (arr[starti + 4][startj].hasfrog == false)
-                    && (arr[starti + 2][startj].is_there_a_red_frog == false) && (arr[starti + 4][startj].is_there_a_red_frog == false)) {
-                arr[starti + 2][startj].hasfrog = true;
-                if (arr[starti][startj].hasfrog) {
-                    arr[starti][startj].hasfrog = false;
-                    arr[starti + 4][startj].hasfrog = true;
-                } else if (arr[starti][startj].is_there_a_red_frog) {
-                    arr[starti][startj].is_there_a_red_frog = false;
-                    arr[starti + 4][startj].is_there_a_red_frog = true;
+
+             else   if ((startj == 4)&&(arr[starti][startj - 4].hasfrog == false) && (arr[starti][startj - 2].hasfrog == false)
+                        && (arr[starti][startj - 4].is_there_a_red_frog == false) && (arr[starti][startj - 2].is_there_a_red_frog == false)) {
+                    arr[starti][startj - 2].hasfrog = true;
+                    if (arr[starti][startj].hasfrog) {
+                        arr[starti][startj].hasfrog = false;
+                        arr[starti][startj - 4].hasfrog = true;
+                    } else if (arr[starti][startj].is_there_a_red_frog) {
+                        arr[starti][startj].is_there_a_red_frog = false;
+                        arr[starti][startj - 4].is_there_a_red_frog = true;
+                    }
+                    points.remove(points.indexOf(new Point(starti, startj)));
+                    points.add(new Point(starti, startj - 4));
+                    points.add(new Point(starti, startj - 2));
+
+                    return arr;
+                } else if ((startj == 4)&&(starti == 0) && (arr[starti + 2][startj].hasfrog == false) && (arr[starti + 4][startj].hasfrog == false)
+                        && (arr[starti + 2][startj].is_there_a_red_frog == false) && (arr[starti + 4][startj].is_there_a_red_frog == false)) {
+                    arr[starti + 2][startj].hasfrog = true;
+
+                    if (arr[starti][startj].hasfrog) {
+                        arr[starti][startj].hasfrog = false;
+                        arr[starti + 4][startj].hasfrog = true;
+                    } else if (arr[starti][startj].is_there_a_red_frog) {
+                        arr[starti][startj].is_there_a_red_frog = false;
+                        arr[starti + 4][startj].is_there_a_red_frog = true;
+                    }
+                    points.remove(points.indexOf(new Point(starti, startj)));
+                    points.add(new Point(starti + 4, startj));
+                    points.add(new Point(starti + 2, startj));
+
+                    return arr;
+                }
+                else if ((startj == 4)&&(starti == 4) && (arr[starti - 2][startj].hasfrog == false) && (arr[starti - 4][startj].hasfrog == false)
+                        && (arr[starti - 2][startj].is_there_a_red_frog == false) && (arr[starti - 4][startj].is_there_a_red_frog == false)) {
+                    arr[starti - 2][startj].hasfrog = true;
+                    if (arr[starti][startj].hasfrog) {
+                        arr[starti][startj].hasfrog = false;
+                        arr[starti - 4][startj].hasfrog = true;
+                    } else if (arr[starti][startj].is_there_a_red_frog) {
+                        arr[starti][startj].is_there_a_red_frog = false;
+                        arr[starti - 4][startj].is_there_a_red_frog = true;
+                    }
+
+                    points.remove(points.indexOf(new Point(starti, startj)));
+                    points.add(new Point(starti - 4, startj));
+                    points.add(new Point(starti - 2, startj));
+
+                    return arr;
                 }
 
-                points.remove(points.indexOf(new Point(starti, startj)));
-                points.add(new Point(starti + 4, startj));
-                points.add(new Point(starti + 2, startj));
-
-                return arr;
-            } else if ((starti == 4) && (arr[starti - 2][startj].hasfrog == false) && (arr[starti - 4][startj].hasfrog == false)
-                    && (arr[starti - 2][startj].is_there_a_red_frog == false) && (arr[starti - 4][startj].is_there_a_red_frog == false)) {
-                arr[starti - 2][startj].hasfrog = true;
-                if (arr[starti][startj].hasfrog) {
-                    arr[starti][startj].hasfrog = false;
-                    arr[starti - 4][startj].hasfrog = true;
-                } else if (arr[starti][startj].is_there_a_red_frog) {
-                    arr[starti][startj].is_there_a_red_frog = false;
-                    arr[starti - 4][startj].is_there_a_red_frog = true;
+                else
+                if (startj == 2&& starti==2) {
+                    return check_if_i_1(starti, startj, arr);
                 }
 
-                points.remove(points.indexOf(new Point(starti, startj)));
-                points.add(new Point(starti - 4, startj));
-                points.add(new Point(starti - 2, startj));
+            else
+             if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)
+                        && (arr[starti + 1][startj - 1].is_there_a_red_frog == false) && (arr[starti + 2][startj - 2].is_there_a_red_frog == false)) {
+                 arr[starti + 1][startj - 1].hasfrog = true;
 
-                return arr;
-            }
-            else return arr;
-        }
-//-------------------------------------------------------------------------------------
-        else if (startj == 4) {
+                 if (arr[starti][startj].hasfrog) {
+                     arr[starti][startj].hasfrog = false;
+                     arr[starti + 2][startj - 2].hasfrog = true;
+                 } else if (arr[starti][startj].is_there_a_red_frog) {
+                     arr[starti][startj].is_there_a_red_frog = false;
+                     arr[starti + 2][startj - 2].is_there_a_red_frog = true;
+                 }
+                 points.remove(points.indexOf(new Point(starti, startj)));
+                 points.add(new Point(starti + 1, startj - 1));
+                 points.add(new Point(starti + 2, startj - 2));
 
-            if ((arr[starti][startj - 4].hasfrog == false) && (arr[starti][startj - 2].hasfrog == false)
-                    && (arr[starti][startj - 4].is_there_a_red_frog == false) && (arr[starti][startj - 2].is_there_a_red_frog == false)) {
-                arr[starti][startj - 2].hasfrog = true;
-                if (arr[starti][startj].hasfrog) {
-                    arr[starti][startj].hasfrog = false;
-                    arr[starti][startj - 4].hasfrog = true;
-                } else if (arr[starti][startj].is_there_a_red_frog) {
-                    arr[starti][startj].is_there_a_red_frog = false;
-                    arr[starti][startj - 4].is_there_a_red_frog = true;
-                }
-                points.remove(points.indexOf(new Point(starti, startj)));
-                points.add(new Point(starti, startj - 4));
-                points.add(new Point(starti, startj - 2));
-
-                return arr;
-            } else if ((starti == 0) && (arr[starti + 2][startj].hasfrog == false) && (arr[starti + 4][startj].hasfrog == false)
-                    && (arr[starti + 2][startj].is_there_a_red_frog == false) && (arr[starti + 4][startj].is_there_a_red_frog == false)) {
-                arr[starti + 2][startj].hasfrog = true;
-
-                if (arr[starti][startj].hasfrog) {
-                    arr[starti][startj].hasfrog = false;
-                    arr[starti + 4][startj].hasfrog = true;
-                } else if (arr[starti][startj].is_there_a_red_frog) {
-                    arr[starti][startj].is_there_a_red_frog = false;
-                    arr[starti + 4][startj].is_there_a_red_frog = true;
-                }
-                points.remove(points.indexOf(new Point(starti, startj)));
-                points.add(new Point(starti + 4, startj));
-                points.add(new Point(starti + 2, startj));
-
-                return arr;
-            }
-            else if ((starti == 4) && (arr[starti - 2][startj].hasfrog == false) && (arr[starti - 4][startj].hasfrog == false)
-                    && (arr[starti - 2][startj].is_there_a_red_frog == false) && (arr[starti - 4][startj].is_there_a_red_frog == false)) {
-                arr[starti - 2][startj].hasfrog = true;
-                if (arr[starti][startj].hasfrog) {
-                    arr[starti][startj].hasfrog = false;
-                    arr[starti - 4][startj].hasfrog = true;
-                } else if (arr[starti][startj].is_there_a_red_frog) {
-                    arr[starti][startj].is_there_a_red_frog = false;
-                    arr[starti - 4][startj].is_there_a_red_frog = true;
-                }
-
-                points.remove(points.indexOf(new Point(starti, startj)));
-                points.add(new Point(starti - 4, startj));
-                points.add(new Point(starti - 2, startj));
-
-                return arr;
-            }
-            else return arr;
-        }
-
-
-        if (startj == 2&& starti==2) {
-            return check_if_i_1(starti, startj, arr);
-        }
-       else  if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)
-                    && (arr[starti + 1][startj - 1].is_there_a_red_frog == false) && (arr[starti + 2][startj - 2].is_there_a_red_frog == false)) {
-             arr[starti + 1][startj - 1].hasfrog = true;
-
-             if (arr[starti][startj].hasfrog) {
-                 arr[starti][startj].hasfrog = false;
-                 arr[starti + 2][startj - 2].hasfrog = true;
-             } else if (arr[starti][startj].is_there_a_red_frog) {
-                 arr[starti][startj].is_there_a_red_frog = false;
-                 arr[starti + 2][startj - 2].is_there_a_red_frog = true;
+                 return arr;
              }
-             points.remove(points.indexOf(new Point(starti, startj)));
-             points.add(new Point(starti + 1, startj - 1));
-             points.add(new Point(starti + 2, startj - 2));
+                 else if ((starti > 1) && (startj > 1) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)
+                        && (arr[starti - 1][startj - 1].is_there_a_red_frog == false) && (arr[starti - 2][startj - 2].is_there_a_red_frog == false)) {
 
-             return arr;
-         }
-             else if ((starti > 1) && (startj > 1) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)
-                    && (arr[starti - 1][startj - 1].is_there_a_red_frog == false) && (arr[starti - 2][startj - 2].is_there_a_red_frog == false)) {
+                    arr[starti - 1][startj - 1].hasfrog = true;
 
-                arr[starti - 1][startj - 1].hasfrog = true;
+                    if (arr[starti][startj].hasfrog) {
+                        arr[starti][startj].hasfrog = false;
+                        arr[starti - 2][startj - 2].hasfrog = true;
+                    } else if (arr[starti][startj].is_there_a_red_frog) {
+                        arr[starti][startj].is_there_a_red_frog = false;
+                        arr[starti - 2][startj - 2].is_there_a_red_frog = true;
+                    }
 
-                if (arr[starti][startj].hasfrog) {
-                    arr[starti][startj].hasfrog = false;
-                    arr[starti - 2][startj - 2].hasfrog = true;
-                } else if (arr[starti][startj].is_there_a_red_frog) {
-                    arr[starti][startj].is_there_a_red_frog = false;
-                    arr[starti - 2][startj - 2].is_there_a_red_frog = true;
+                    points.remove(points.indexOf(new Point(starti, startj)));
+                    points.add(new Point(starti - 1, startj - 1));
+                    points.add(new Point(starti - 2, startj - 2));
+
+                    return arr;
                 }
+             else if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 2][startj + 2].hasfrog == false)
+                     && (arr[starti + 1][startj + 1].is_there_a_red_frog == false) && (arr[starti + 2][startj + 2].is_there_a_red_frog == false)) {
+                 arr[starti + 1][startj + 1].hasfrog = true;
+                 if (arr[starti][startj].hasfrog) {
+                     arr[starti][startj].hasfrog = false;
+                     arr[starti + 2][startj + 2].hasfrog = true;
+                 } else if (arr[starti][startj].is_there_a_red_frog) {
+                     arr[starti][startj].is_there_a_red_frog = false;
+                     arr[starti + 2][startj + 2].is_there_a_red_frog = true;
+                 }
+                 points.remove(points.indexOf(new Point(starti, startj)));
+                 points.add(new Point(starti + 1, startj + 1));
+                 points.add(new Point(starti + 2, startj + 2));
 
-                points.remove(points.indexOf(new Point(starti, startj)));
-                points.add(new Point(starti - 1, startj - 1));
-                points.add(new Point(starti - 2, startj - 2));
-
-                return arr;
-            }
-         else if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 2][startj + 2].hasfrog == false)
-                 && (arr[starti + 1][startj + 1].is_there_a_red_frog == false) && (arr[starti + 2][startj + 2].is_there_a_red_frog == false)) {
-             arr[starti + 1][startj + 1].hasfrog = true;
-             if (arr[starti][startj].hasfrog) {
-                 arr[starti][startj].hasfrog = false;
-                 arr[starti + 2][startj + 2].hasfrog = true;
-             } else if (arr[starti][startj].is_there_a_red_frog) {
-                 arr[starti][startj].is_there_a_red_frog = false;
-                 arr[starti + 2][startj + 2].is_there_a_red_frog = true;
+                 return arr;
              }
-             points.remove(points.indexOf(new Point(starti, startj)));
-             points.add(new Point(starti + 1, startj + 1));
-             points.add(new Point(starti + 2, startj + 2));
+              else if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)
+                     && (arr[starti - 1][startj + 1].is_there_a_red_frog == false) && (arr[starti - 2][startj + 2].is_there_a_red_frog == false)) {
+                 arr[starti - 1][startj + 1].hasfrog = true;
+                 if (arr[starti][startj].hasfrog) {
+                     arr[starti][startj].hasfrog = false;
+                     arr[starti - 2][startj + 2].hasfrog = true;
+                 } else if (arr[starti][startj].is_there_a_red_frog) {
+                     arr[starti][startj].is_there_a_red_frog = false;
+                     arr[starti - 2][startj + 2].is_there_a_red_frog = true;
+                 }
+                 points.remove(points.indexOf(new Point(starti, startj)));
+                 points.add(new Point(starti - 1, startj + 1));
+                 points.add(new Point(starti - 2, startj + 2));
 
-             return arr;
-         }
-          else if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)
-                 && (arr[starti - 1][startj + 1].is_there_a_red_frog == false) && (arr[starti - 2][startj + 2].is_there_a_red_frog == false)) {
-             arr[starti - 1][startj + 1].hasfrog = true;
-             if (arr[starti][startj].hasfrog) {
-                 arr[starti][startj].hasfrog = false;
-                 arr[starti - 2][startj + 2].hasfrog = true;
-             } else if (arr[starti][startj].is_there_a_red_frog) {
-                 arr[starti][startj].is_there_a_red_frog = false;
-                 arr[starti - 2][startj + 2].is_there_a_red_frog = true;
-             }
-             points.remove(points.indexOf(new Point(starti, startj)));
-             points.add(new Point(starti - 1, startj + 1));
-             points.add(new Point(starti - 2, startj + 2));
-
-             return arr;
-        } else return arr;
+                 return arr;
+            } else return arr;
     }
 
     @Override
