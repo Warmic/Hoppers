@@ -7,11 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,17 +20,17 @@ import java.util.List;
  * Created by Peter on 01.05.2017.
  */
 
-public class SetofStoryDifficulties extends Activity {
+public class Set_of_Story_Difficulties extends Activity {
 
     public ListView lvStoryLevels;
-    public SetofStoryDifficultiesAdapter adapter;
-    public List<StoryLevelSetClass> levelSetClassList;
+    public Set_of_Story_Difficulties_Adapter adapter;
+    public List<Story_Level_Set_Class> levelSetClassList;
     public ArrayList<Point> completed_and_total;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.setofstorydifficulties);
+        setContentView(R.layout.set_of_story_difficulties);
 
         lvStoryLevels = (ListView) findViewById(R.id.storylevellist);
 
@@ -55,20 +55,28 @@ public class SetofStoryDifficulties extends Activity {
                     count_total++;
                 } while (cursor.moveToNext());
             }
-            levelSetClassList.add(new StoryLevelSetClass(i,count_total,count_completed));
+            levelSetClassList.add(new Story_Level_Set_Class(i,count_total,count_completed));
 
             cursor.close();
         }
 
 
-        adapter = new SetofStoryDifficultiesAdapter(getApplicationContext(),levelSetClassList);
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+
+        int minHeight = displaymetrics.heightPixels/(levelSetClassList.size()+2);
+
+
+        adapter = new Set_of_Story_Difficulties_Adapter(getApplicationContext(),levelSetClassList);
+
+        adapter.max = minHeight;
 
         lvStoryLevels.setAdapter(adapter);
 
         lvStoryLevels.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getBaseContext(),SetofStoryLevels.class);
+                Intent intent = new Intent(getBaseContext(),Set_of_Story_Levels.class);
                 intent.putExtra("IsStory","Story");
                 intent.putExtra("Level", levelSetClassList.get(position).getAmountoffrogs());
                 intent.putExtra("Total",levelSetClassList.get(position).getTotallevels());

@@ -12,6 +12,7 @@ public class MainActivity extends AppCompatActivity {
 
     public Button choselevels;
     public Button storymode;
+    public Button onlineMode;
 
 
     @Override
@@ -22,28 +23,32 @@ public class MainActivity extends AppCompatActivity {
 
 
         choselevels = (Button) findViewById(R.id.setofrandomlevels);
-
         choselevels.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-             Intent intent = new Intent(getBaseContext(),SetofRandomLevels.class);
+             Intent intent = new Intent(getBaseContext(),Set_of_Random_Levels.class);
              intent.putExtra("Random","random");
              startActivity(intent);
             }
         });
 
         storymode = (Button) findViewById(R.id.choosestorylevel);
-
         storymode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getBaseContext(),SetofStoryDifficulties.class);
+                Intent intent = new Intent(getBaseContext(),Set_of_Story_Difficulties.class);
                 startActivity(intent);
             }
         });
 
+        onlineMode = (Button) findViewById(R.id.online);
+        onlineMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getBaseContext(),OnlineGame.class);
+                startActivity(intent);
+            }
+        });
         }
-
-
 
 }

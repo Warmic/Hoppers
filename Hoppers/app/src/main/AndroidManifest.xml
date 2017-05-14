@@ -2,9 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.hoppers">
 
-
-    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -12,18 +10,30 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.example.hoppers.MainActivity">
+        <activity android:name="com.example.hoppers.MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChosenLevel" />
-        <activity android:name=".SetofRandomLevels" />
-        <activity android:name=".SetofStoryDifficulties" />
-        <activity android:name=".SetofStoryLevels" />
-
+        <activity android:name=".ChosenLevel"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Set_of_Random_Levels"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Set_of_Story_Difficulties"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Set_of_Story_Levels"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".OnlineGame"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
 
     </application>
 

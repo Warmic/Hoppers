@@ -6,7 +6,6 @@ import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Button;
@@ -19,11 +18,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
-public class SetofStoryLevels extends Activity {
+public class Set_of_Story_Levels extends Activity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -105,7 +103,7 @@ public class SetofStoryLevels extends Activity {
     @Override
     public void onBackPressed() {
         Log.d("CDA", "onBackPressed Called");
-        Intent setIntent = new Intent(getBaseContext(),SetofStoryDifficulties.class);
+        Intent setIntent = new Intent(getBaseContext(),Set_of_Story_Difficulties.class);
         startActivity(setIntent);
     }
 

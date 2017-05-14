@@ -14,13 +14,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     // Database Name
     private static final String DATABASE_NAME = "levelManager";
 
-    // Contacts table name
+    // Difficulties Table name
     public static final String TABLE_DIFFICULTIES = "difficulties";
 
-    // Contacts Table Columns names
+    // Difficulties Table Columns names
     public static final String DIFFICULTY = "difficulty";
     public static final String LEVEL = "level";
     public static final String COMPLETED = "completed";
+
+    //Online_profile table name
+    public static final String TABLE_ONLINE_PROFILE = "online_profile";
+
+    //Online_profile Table Columns names
+    public static final String NICKNAME = "nickname";
+    //progress,history of games etc.
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -55,6 +62,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
             startparam++;
         }
+
+        String CREATE_ONLINE_PROFILE = "CREATE TABLE IF NOT EXISTS " + TABLE_ONLINE_PROFILE + "("
+                + NICKNAME + " TEXT " + ")";
+
+        db.execSQL(CREATE_ONLINE_PROFILE);
 
     }
 

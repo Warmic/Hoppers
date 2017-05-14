@@ -1,8 +1,6 @@
 package com.example.hoppers;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
@@ -10,10 +8,8 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -106,13 +102,13 @@ public class ChosenLevel extends Activity {
     public void onBackPressed() {
         Log.d("CDA", "onBackPressed Called");
         if (getIntent().getStringExtra("IsStory")!=null) {
-            Intent setIntent = new Intent(getBaseContext(),SetofStoryLevels.class);
+            Intent setIntent = new Intent(getBaseContext(),Set_of_Story_Levels.class);
             setIntent.putExtra("Total",getIntent().getIntExtra("Total",0));
             setIntent.putExtra("Level",getIntent().getIntExtra("Level",0));
             startActivity(setIntent);
         }
         else if (getIntent().getStringExtra("Random")!=null) {
-            Intent setIntent = new Intent(getBaseContext(),SetofRandomLevels.class);
+            Intent setIntent = new Intent(getBaseContext(),Set_of_Random_Levels.class);
             setIntent.putExtra("Random","random");
             startActivity(setIntent);
         }

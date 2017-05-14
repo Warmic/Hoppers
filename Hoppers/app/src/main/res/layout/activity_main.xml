@@ -3,9 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background = "@drawable/startbackground"
+    android:background="@drawable/pondbackground"
     android:padding = "20dp"
     android:weightSum="1">
+    <!--android:background = "@drawable/startbackground"-->
 
 
     <Button
@@ -16,7 +17,22 @@
         android:layout_marginTop="75dp"
         android:layout_weight="0.05"
         android:background="@drawable/roundbutton"
+
         android:text="StoryMode" />
+
+
+
+    <Button
+        android:id="@+id/online"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="75dp"
+        android:layout_weight="0.05"
+        android:background="@drawable/roundbutton"
+        android:text="OnlineMode"
+
+        />
 
 
     <Button
@@ -28,6 +44,7 @@
         android:layout_weight="0.05"
         android:background="@drawable/roundbutton"
         android:text="PracticeMode" />
+
 
 
 </LinearLayout>

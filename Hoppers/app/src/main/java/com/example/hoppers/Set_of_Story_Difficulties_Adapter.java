@@ -12,13 +12,16 @@ import java.util.List;
  * Created by Peter on 01.05.2017.
  */
 
-public class SetofStoryDifficultiesAdapter extends BaseAdapter {
+public class Set_of_Story_Difficulties_Adapter extends BaseAdapter {
 
 
-    private List<StoryLevelSetClass> list;
+    private List<Story_Level_Set_Class> list;
     private Context context;
+    private TextView amountoffrogs;
+    private TextView levelscompleted;
+    public int max = 0;
 
-    public SetofStoryDifficultiesAdapter(Context context, List<StoryLevelSetClass> list){
+    public Set_of_Story_Difficulties_Adapter(Context context, List<Story_Level_Set_Class> list){
         this.context = context;
         this.list = list;
     }
@@ -38,12 +41,18 @@ public class SetofStoryDifficultiesAdapter extends BaseAdapter {
         return position;
     }
 
+
+
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View v = View.inflate(context,R.layout.item_storylevels_list,null);
-        TextView amountoffrogs = (TextView) v.findViewById(R.id.amountoffrogs);
-        TextView levelscompleted = (TextView) v.findViewById(R.id.levelscompleted);
-        amountoffrogs.setText("Difficulty : "+String.valueOf(list.get(position).getAmountoffrogs()));
+
+
+        amountoffrogs = (TextView) v.findViewById(R.id.amountoffrogs);
+        levelscompleted = (TextView) v.findViewById(R.id.levelscompleted);
+        if (max!=0) amountoffrogs.setMinHeight(max);
+        amountoffrogs.setText("Difficulty : "+String.valueOf(list.get(position).getAmountoffrogs())+" Frogs");
         levelscompleted.setText("Completed levels : "+String.valueOf(list.get(position).getLevels_completed())+
                 "/"+String.valueOf(list.get(position).getTotallevels()));
 

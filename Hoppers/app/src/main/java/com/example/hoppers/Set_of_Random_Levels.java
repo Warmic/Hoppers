@@ -13,11 +13,11 @@ import android.view.View;
  * Created by Peter on 19.04.2017.
  */
 
-public class SetofRandomLevels extends Activity {
+public class Set_of_Random_Levels extends Activity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        setContentView(R.layout.setofrandomlevels_layout);
+        setContentView(R.layout.set_of_random_levels_layout);
         super.onCreate(savedInstanceState);
     }
 
