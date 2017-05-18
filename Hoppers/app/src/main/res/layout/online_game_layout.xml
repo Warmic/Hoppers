@@ -41,10 +41,10 @@
         android:id="@+id/opponent_data_layout">
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="FindOpponent"
-            android:id="@+id/find_opponent"/>
+            android:id="@+id/find_opponent"
+            android:layout_width="250dp"
+            android:layout_height="65dp"
+            android:text="FindOpponent" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -72,7 +72,6 @@
             android:textSize="20sp"
             android:id="@+id/map_text_test"/>
     </LinearLayout>
-
 
 
 </LinearLayout>

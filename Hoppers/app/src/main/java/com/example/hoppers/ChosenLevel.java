@@ -32,19 +32,34 @@ public class ChosenLevel extends Activity {
         Intent intent = getIntent();
 
         pond = (Pond) findViewById(R.id.pond);
+
         if (intent.getIntExtra("Level",0)!=0) pond.amountoffrogs= intent.getIntExtra("Level",0);
-        if (intent.getStringExtra("Random")!=null) pond.randomlevel=true;
 
-        if (intent.getStringExtra("IsStory")!=null) pond.setupcomplete=true;
+        if (intent.getIntExtra("Current",0)!=0) pond.current = (intent.getIntExtra("Current",0));
 
+        if (intent.getStringExtra("Random")!=null) pond.randomlevel = true;
 
-        if (intent.getStringExtra("Current")!=null) pond.current = Integer.parseInt(intent.getStringExtra("Current"));
+        if (intent.getStringExtra("IsStory")!=null) {
 
+            pond.setupcomplete = true;
+            pond.story = true;
 
-        if (intent.getStringExtra("Map")!=null) {
-            pond.map = intent.getStringExtra("Map");
-            pond.nextmap = GetLevelFromAssets(pond.current+1+"");
+            if (intent.getStringExtra("Map")!=null ) {
+                pond.map = intent.getStringExtra("Map");
+                pond.nextmap = GetLevelFromAssets(pond.current+1+"");
+            }
         }
+
+        if (intent.getStringExtra("IsOnline")!=null) {
+
+            pond.setupcomplete = true;
+            pond.online = true;
+            pond.map = intent.getStringExtra("Map");
+
+            if (intent.getStringExtra("NextMap")!=null) pond.nextmap = intent.getStringExtra("NextMap");
+        }
+
+
 
         if (intent.getIntExtra("Total",0)!=0) pond.total = intent.getIntExtra("Total",0);
 
@@ -74,7 +89,7 @@ public class ChosenLevel extends Activity {
 
     public String GetLevelFromAssets(String tag){
 
-        ArrayList<String> list = new ArrayList<>();
+        ArrayList<String> list = new ArrayList();
 
         try {
             AssetManager as = getAssets();

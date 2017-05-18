@@ -26,7 +26,7 @@ public class Set_of_Story_Levels extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.chosen_story_level);
+        setContentView(R.layout.set_of_story_levels);
 
         List<Integer> buttonids = new ArrayList(){};
 
@@ -88,13 +88,18 @@ public class Set_of_Story_Levels extends Activity {
     }
 
     public void onClick(View v){
+
         if (v.getTag()!=null) {
+
             Intent recieved = getIntent();
+            int tag = Integer.parseInt(v.getTag().toString());
+
             Intent intent = new Intent(getBaseContext(), ChosenLevel.class);
+
             intent.putExtra("IsStory","xd");
             intent.putExtra("Level",recieved.getIntExtra("Level",0));
             intent.putExtra("Map",GetLevelFromAssets(v));
-            intent.putExtra("Current",v.getTag().toString());
+            intent.putExtra("Current",tag);
             intent.putExtra("Total",getIntent().getIntExtra("Total",0));
             startActivity(intent);
         }

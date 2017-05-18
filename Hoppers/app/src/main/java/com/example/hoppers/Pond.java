@@ -21,9 +21,6 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.Random;
 
-/**
- * Created by Peter on 19.04.2017.
- */
 
 public class Pond extends View {
 
@@ -31,41 +28,44 @@ public class Pond extends View {
     public LiliPads draggedfrog = null;
     public LiliPads liliPads[][] = new LiliPads[5][5];
     public ArrayList<Move> moves = new ArrayList<Move>();
-    public ArrayList<Point> points = new ArrayList<>();
+    public ArrayList<Point> points = new ArrayList();
 
 
 
-    public int startx = -1;
-    public int starty = -1;
-    public int diffx;
-    public int diffy;
+    private int startx = -1;
+    private int starty = -1;
+    private int diffx;
+    private int diffy;
     public int amountoffrogs;
     public final int rad = 80;
     public int current;
     public int total;
-    int startingi;
-    int startingj;
+    private int startingi;
+    private int startingj;
 
 
-    final double deg = Math.toRadians(45);
+    private final double deg = Math.toRadians(45);
 
-    Bitmap draggedmap;
-    Bitmap redmap;
-    Bitmap frogmap;
-    Bitmap lilimap;
-    Bitmap background;
+    private Bitmap draggedmap;
+    private Bitmap redmap;
+    private Bitmap frogmap;
+    private Bitmap lilimap;
+    private Bitmap background;
 
     public String thislevel = "";
     public String nextmap;
     public String map;
 
-    boolean dragfrog;
+    private boolean dragfrog;
+    private boolean drag;
+    private boolean messageshown ;
     public boolean PadsUp;
     public boolean randomlevel;
     public boolean levelfinished;
     public boolean setupcomplete;
-    public boolean drag;
-    public boolean messageshown ;
+    public boolean online;
+    public boolean story;
+
 
 
 
@@ -125,21 +125,6 @@ public class Pond extends View {
             float aspectRatio = lilimap.getWidth() / (float) lilimap.getHeight();
 
             if (diffx < diffy) {
-                int width = diffx;
-
-                int height = Math.round(width / aspectRatio);
-
-                lilimap = Bitmap.createScaledBitmap(lilimap, width, height, false);
-
-                aspectRatio = frogmap.getWidth() / frogmap.getHeight();
-                height = Math.round(width / aspectRatio);
-
-                frogmap = Bitmap.createScaledBitmap(frogmap, width, height, true);
-                redmap = Bitmap.createScaledBitmap(redmap, width, height, true);
-                background = Bitmap.createScaledBitmap(background, diffx * 6, diffy * 6, true);
-            }
-            //TODO:Fix scaling
-            else {
                 int width = diffx;
 
                 int height = Math.round(width / aspectRatio);
@@ -229,7 +214,7 @@ public class Pond extends View {
 
         if (moves.size()==points.size()-1) {
             levelfinished =true;
-            if (current>0){
+            if (current>0 && story){
 
                 DatabaseHandler dbh = new DatabaseHandler(getContext());
 
@@ -243,55 +228,104 @@ public class Pond extends View {
             }
         } else levelfinished = false;
 
-        if (levelfinished && current<total && messageshown==false) {
+        if (levelfinished && messageshown == false) {
+            if (online){
+                if (current<total) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setMessage("Congratulations! \n Next level?")
+                            .setCancelable(false)
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    Intent intent = new Intent(getContext(), ChosenLevel.class);
+                                    intent.putExtra("Map", nextmap);
+                                    intent.putExtra("IsOnline", "xd");
+                                    intent.putExtra("Current", current + 1 + "");
+                                    intent.putExtra("Level", Integer.parseInt(nextmap.substring(0, 2)));
+                                    intent.putExtra("Total", total);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setMessage("Congratulations! \n Next level?")
-                    .setCancelable(false)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            Intent intent = new Intent(getContext(), ChosenLevel.class);
-                            intent.putExtra("Map", nextmap);
-                            intent.putExtra("IsStory", "xd");
-                            intent.putExtra("Current", current + 1 + "");
-                            intent.putExtra("Level", points.size() );
-                            intent.putExtra("Total", total);
+                                    getContext().startActivity(intent);
+                                }
+                            })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                }
+                else {}
+            }
+            if (story ) {
 
-                            getContext().startActivity(intent);
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                        }
-                    });
-            AlertDialog alert = builder.create();
-            alert.show();
-            messageshown = true;
-        }
-        if (levelfinished&&randomlevel&&messageshown==false){
+                if (current < total) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setMessage("Congratulations! \n Next level?")
+                            .setCancelable(false)
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    Intent intent = new Intent(getContext(), ChosenLevel.class);
+                                    intent.putExtra("Map", nextmap);
+                                    intent.putExtra("IsStory", "xd");
+                                    intent.putExtra("Current", current + 1 + "");
+                                    intent.putExtra("Level", points.size());
+                                    intent.putExtra("Total", total);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setMessage("    Congratulations!     \n     Next level?     ")
-                    .setCancelable(false)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            Intent intent = new Intent(getContext(), ChosenLevel.class);
+                                    getContext().startActivity(intent);
+                                }
+                            })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setMessage("Congratulations! \n Do you want to choose another difficulty?")
+                            .setCancelable(false)
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    Intent intent = new Intent(getContext(), Set_of_Story_Difficulties.class);
 
-                            intent.putExtra("Random","rand");
-                            intent.putExtra("Level",points.size());
+                                    getContext().startActivity(intent);
+                                }
+                            })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                }
+            }
 
-                            getContext().startActivity(intent);
-                        }
-                    })
+            if (randomlevel) {
 
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                        }
-                    });
-            AlertDialog alert = builder.create();
-            alert.show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setMessage("    Congratulations!     \n     Next level?     ")
+                        .setCancelable(false)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent intent = new Intent(getContext(), ChosenLevel.class);
+
+                                intent.putExtra("Random", "rand");
+                                intent.putExtra("Level", points.size());
+
+                                getContext().startActivity(intent);
+                            }
+                        })
+
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
             messageshown = true;
         }
 
@@ -337,8 +371,8 @@ public class Pond extends View {
 
                 if (points.get(i).x % 2 == 1)
                     check_if_i_1(points.get(i).x, points.get(i).y, arr);
-                tries++;
 
+                tries++;
 
             }
 

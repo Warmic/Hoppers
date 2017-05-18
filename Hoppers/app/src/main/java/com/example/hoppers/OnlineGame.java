@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
@@ -25,6 +26,7 @@ public class OnlineGame extends Activity {
 
     EditText setname;
     Button new_name;
+    Button load_levels;
     Button find_opponent;
     TextView opponent;
     TextView name;
@@ -53,6 +55,7 @@ public class OnlineGame extends Activity {
             name.setVisibility(View.GONE);
             map.setVisibility(View.GONE);
             map_too.setVisibility(View.GONE);
+            load_levels.setVisibility(View.GONE);
         }
 
         new_name.setOnClickListener(new View.OnClickListener() {
@@ -69,7 +72,7 @@ public class OnlineGame extends Activity {
                    name.setVisibility(View.VISIBLE);
                    find_opponent.setVisibility(View.VISIBLE);
                    opponent.setVisibility(View.VISIBLE);
-
+                   load_levels.setVisibility(View.VISIBLE);
                }
             }
         });
@@ -81,6 +84,7 @@ public class OnlineGame extends Activity {
                 new Get_JSON_Reply_class().execute("{\"action\" : \"find_opponent\", \"token\" : "+7914803+"}");
             }
         });
+
     }
 
     @Override
@@ -91,11 +95,14 @@ public class OnlineGame extends Activity {
 
     public class Get_JSON_Reply_class extends AsyncTask<String,Void,String> {
 
+        String request;
 
         @Override
         protected String doInBackground(String... params) {
 
             try {
+                request = params[0];
+
                 String set_server_url = "http://91.242.182.235:8080";
 
                 URL url = new URL(set_server_url);
@@ -112,7 +119,7 @@ public class OnlineGame extends Activity {
                 String completeReply = "";
                 if (in.hasNext()) {
                     completeReply = in.nextLine();
-                    }
+                }
 
                 urlConnection.disconnect();
 
@@ -128,14 +135,32 @@ public class OnlineGame extends Activity {
         @Override
         protected void onPostExecute(String s) {
 
-            Toast.makeText(getBaseContext(),s,Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), s, Toast.LENGTH_SHORT).show();
 
-            if (s.equals("")==false && s.contains("map") ){
-                opponent.setText(s.substring(s.indexOf("opponent_token") + 17, s.indexOf("opponent_token")+24));
-                map.setText(s.substring(s.indexOf("map")+7 , s.indexOf("map")+73));
+            if (request != null && s.equals("") == false) {
 
-                map.setVisibility(View.VISIBLE);
-                map_too.setVisibility(View.VISIBLE);
+                if (request.contains("find_opponent")) {
+
+                    opponent.setText(s.substring(s.indexOf("opponent_token") + 17, s.indexOf("opponent_token") + 24));
+                    map.setText(s.substring(s.indexOf("map") + 7, s.indexOf("map") + 73));
+
+                    map.setVisibility(View.VISIBLE);
+                    map_too.setVisibility(View.VISIBLE);
+
+                    SystemClock.sleep(7000);
+
+                    Intent intent = new Intent(getBaseContext(), OnlineGame.class);
+                    intent.putExtra("Level", s.substring(s.indexOf("map" + 7, s.indexOf("your_token") - 2)));
+                    Toast.makeText(getBaseContext(), "Successful search of an opponent ", Toast.LENGTH_LONG).show();
+
+                }
+
+                if (request.contains("register")) {
+
+                    Toast.makeText(getBaseContext(), "Successful register ", Toast.LENGTH_LONG).show();
+
+                }
+
             }
 
         }
