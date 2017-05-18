@@ -76,7 +76,7 @@ public class Set_of_Story_Levels extends Activity {
             }
             cursor.close();
 
-        for (int i = 0; i < data.size(); i++) {
+        for (int i = 0; i < data.size()-1; i++) {
 
             Integer integ = data.get(i);
 

@@ -39,22 +39,29 @@ public class OnlineGame_Set_of_Levels extends Activity {
 
         Intent recieved = getIntent();
 
-        if (recieved.getStringExtra("Levels")!=null) {
+        Log.d("lev",recieved.getStringExtra("Levels")+" lev");
+        if (recieved.getStringExtra("Level")!=null) {
             recieved_level = recieved.getStringExtra("Level");
+            int pos = 0;
+            Log.d("lev",recieved_level);
             for (int i = 0; i < recieved_level.length(); i++) {
-                int pos = 0;
+
                 if (recieved_level.charAt(i)==',') {
                     if (pos==0)
 
                         list_recieved_levels.add(recieved_level.substring(0,i-1));
 
                     else list_recieved_levels.add(recieved_level.substring(pos+1,i-1));
+
+                    pos = i;
                 }
             }
+            if (recieved_level.length()<100) list_recieved_levels.add(recieved_level);
+
 
             int amount_of_levels = list_recieved_levels.size();
 
-            for (int i = 5 ; i > amount_of_levels-1; i--) {
+            for (int i = 4 ; i > amount_of_levels-1; i--) {
                 Button button = (Button) findViewById(buttonids.get(i));
                 button.setVisibility(View.INVISIBLE);
             }
@@ -74,7 +81,7 @@ public class OnlineGame_Set_of_Levels extends Activity {
     public void onClick(View v){
         if (v.getTag()!=null) {
 
-            int tag = Integer.parseInt(v.getTag().toString());
+            int tag = Integer.parseInt(v.getTag().toString())-1;
 
             Intent intent = new Intent(getBaseContext(), ChosenLevel.class);
 
@@ -82,9 +89,9 @@ public class OnlineGame_Set_of_Levels extends Activity {
 
             intent.putExtra("Level",Integer.parseInt(list_recieved_levels.get(tag).substring(0,2)));
 
-            intent.putExtra("Map",list_recieved_levels.get(tag));
+            intent.putExtra("Map",list_recieved_levels.get(tag).substring(2, list_recieved_levels.get(tag).length()));
 
-            if (tag<list_recieved_levels.size()) intent.putExtra("NextMap",list_recieved_levels.get(tag+1));
+            if (tag+1<list_recieved_levels.size()) intent.putExtra("NextMap",list_recieved_levels.get(tag+1));
 
             intent.putExtra("Current",tag);
 

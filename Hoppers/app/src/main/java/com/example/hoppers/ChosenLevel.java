@@ -44,7 +44,7 @@ public class ChosenLevel extends Activity {
             pond.setupcomplete = true;
             pond.story = true;
 
-            if (intent.getStringExtra("Map")!=null ) {
+            if (intent.getStringExtra("Map")!=null && intent.getStringExtra("IsStory")!=null ) {
                 pond.map = intent.getStringExtra("Map");
                 pond.nextmap = GetLevelFromAssets(pond.current+1+"");
             }
@@ -126,6 +126,10 @@ public class ChosenLevel extends Activity {
             Intent setIntent = new Intent(getBaseContext(),Set_of_Random_Levels.class);
             setIntent.putExtra("Random","random");
             startActivity(setIntent);
+        }
+        else if (getIntent().getStringExtra("IsOnline")!=null){
+            Intent setintent = new Intent(getBaseContext(),OnlineGame_Set_of_Levels.class);
+            startActivity(setintent);
         }
 
     }

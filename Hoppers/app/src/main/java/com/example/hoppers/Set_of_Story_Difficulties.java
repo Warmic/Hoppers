@@ -55,7 +55,7 @@ public class Set_of_Story_Difficulties extends Activity {
                     count_total++;
                 } while (cursor.moveToNext());
             }
-            levelSetClassList.add(new Story_Level_Set_Class(i,count_total,count_completed));
+            levelSetClassList.add(new Story_Level_Set_Class(i,count_total-1,count_completed));
 
             cursor.close();
         }

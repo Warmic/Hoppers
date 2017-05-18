@@ -26,12 +26,12 @@ public class OnlineGame extends Activity {
 
     EditText setname;
     Button new_name;
-    Button load_levels;
     Button find_opponent;
     TextView opponent;
     TextView name;
     TextView map;
     TextView map_too;
+    int token = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,7 +55,6 @@ public class OnlineGame extends Activity {
             name.setVisibility(View.GONE);
             map.setVisibility(View.GONE);
             map_too.setVisibility(View.GONE);
-            load_levels.setVisibility(View.GONE);
         }
 
         new_name.setOnClickListener(new View.OnClickListener() {
@@ -72,7 +71,6 @@ public class OnlineGame extends Activity {
                    name.setVisibility(View.VISIBLE);
                    find_opponent.setVisibility(View.VISIBLE);
                    opponent.setVisibility(View.VISIBLE);
-                   load_levels.setVisibility(View.VISIBLE);
                }
             }
         });
@@ -81,7 +79,7 @@ public class OnlineGame extends Activity {
             @Override
             public void onClick(View v) {
 
-                new Get_JSON_Reply_class().execute("{\"action\" : \"find_opponent\", \"token\" : "+7914803+"}");
+                new Get_JSON_Reply_class().execute("{\"action\" : \"find_opponent\", \"token\" : "+token+"}");
             }
         });
 
@@ -141,23 +139,34 @@ public class OnlineGame extends Activity {
 
                 if (request.contains("find_opponent")) {
 
+                    Log.d("log",s);
+
+
                     opponent.setText(s.substring(s.indexOf("opponent_token") + 17, s.indexOf("opponent_token") + 24));
-                    map.setText(s.substring(s.indexOf("map") + 7, s.indexOf("map") + 73));
+
+                    map.setText(s.substring(s.indexOf("map") + 7, s.indexOf("opponent_token") -2));
 
                     map.setVisibility(View.VISIBLE);
                     map_too.setVisibility(View.VISIBLE);
 
-                    SystemClock.sleep(7000);
-
-                    Intent intent = new Intent(getBaseContext(), OnlineGame.class);
-                    intent.putExtra("Level", s.substring(s.indexOf("map" + 7, s.indexOf("your_token") - 2)));
                     Toast.makeText(getBaseContext(), "Successful search of an opponent ", Toast.LENGTH_LONG).show();
+
+                    SystemClock.sleep(2000);
+
+
+
+                    Intent intent = new Intent(getBaseContext(), OnlineGame_Set_of_Levels.class);
+                    intent.putExtra("Level", s.substring(s.indexOf("map") + 7, s.indexOf("opponent_token") - 4));
+                    startActivity(intent);
 
                 }
 
                 if (request.contains("register")) {
-
-                    Toast.makeText(getBaseContext(), "Successful register ", Toast.LENGTH_LONG).show();
+                    if (request.contains("error") == false) {
+                        Toast.makeText(getBaseContext(), "Successful register ", Toast.LENGTH_LONG).show();
+                        token = Integer.parseInt(s.substring(s.indexOf("token") + 8, s.indexOf("token") + 15));
+                    }
+                else Toast.makeText(getBaseContext(), "Name already exists", Toast.LENGTH_SHORT).show();
 
                 }
 
