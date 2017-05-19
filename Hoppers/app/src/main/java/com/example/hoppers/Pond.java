@@ -1,11 +1,9 @@
 package com.example.hoppers;
 
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -59,7 +57,6 @@ public class Pond extends View {
     private boolean dragfrog;
     private boolean drag;
     private boolean messageshown ;
-    public boolean PadsUp;
     public boolean randomlevel;
     public boolean levelfinished;
     public boolean setupcomplete;
@@ -192,15 +189,16 @@ public class Pond extends View {
                     int x = (int) liliPads[i][j].x;
                     int y = (int) liliPads[i][j].y;
 
-                    if (PadsUp == false)
-                        canvas.drawBitmap(lilimap, liliPads[i][j].x - lilimap.getWidth() / 2, liliPads[i][j].y - lilimap.getHeight() / 2, paint);
+
+                    canvas.drawBitmap(lilimap, liliPads[i][j].x - lilimap.getWidth() / 2, liliPads[i][j].y - lilimap.getHeight() / 2, paint);
+
                     if (liliPads[i][j].hasfrog == true)
                         canvas.drawBitmap(frogmap, x - frogmap.getWidth() / 2, y - frogmap.getHeight() / 2, paint);
                     if (liliPads[i][j].is_there_a_red_frog == true)
                         canvas.drawBitmap(redmap, x - redmap.getWidth() / 2, y - redmap.getHeight() / 2, paint);
                 }
             }
-            if (i == 5) PadsUp = true;
+
         }
 
         if (draggedfrog != null) {
@@ -225,6 +223,20 @@ public class Pond extends View {
                 db.execSQL(insertQuery);
 
                 db.close();
+                dbh.close();
+            }
+            else if (online){
+                DatabaseHandler dbh = new DatabaseHandler(getContext());
+
+                SQLiteDatabase db = dbh.getWritableDatabase();
+
+                String insertQuery = "UPDATE online_profile SET completed=1 where level is'"+
+                        current+"'";
+
+                db.execSQL(insertQuery);
+
+                db.close();
+                dbh.close();
             }
         } else levelfinished = false;
 

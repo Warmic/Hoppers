@@ -1,6 +1,7 @@
 package com.example.hoppers;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -27,6 +28,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     //Online_profile Table Columns names
     public static final String NICKNAME = "nickname";
+    public static final String MAP = "map";
     //progress,history of games etc.
 
     public DatabaseHandler(Context context) {
@@ -36,8 +38,61 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
+        create_difficulties(db);
 
+
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+    }
+
+    // Upgrading database
+    public void upgrade_difficluties(SQLiteDatabase db) {
+        // Drop older table if existed
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DIFFICULTIES);
+
+        // Create tables again
+        onCreate(db);
+    }
+
+    public void upgrade_online_profile(SQLiteDatabase db) {
+        // Drop older table if existed
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ONLINE_PROFILE);
+
+    }
+
+    public boolean check_if_exists(SQLiteDatabase db, String tableName) {
+            if (tableName == null || db == null || !db.isOpen())
+            {
+                return false;
+            }
+            Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type = ? AND name = ?", new String[] {"table", tableName});
+            if (!cursor.moveToFirst())
+            {
+                cursor.close();
+                return false;
+            }
+            int count = cursor.getInt(0);
+            cursor.close();
+            return count > 0;
+        }
+
+
+    //creating database
+    public void create_online_profile(SQLiteDatabase db){
+
+
+        String CREATE_ONLINE_PROFILE = "CREATE TABLE IF NOT EXISTS " + TABLE_ONLINE_PROFILE + "("
+                + LEVEL + " INTEGER ," +MAP+" TEXT ,"+COMPLETED + " INTEGER"+ ")";
+
+        db.execSQL(CREATE_ONLINE_PROFILE);
+
+    }
+
+    public void create_difficulties(SQLiteDatabase db){
+
 
         String CREATE_DIFFICULTIES = "CREATE TABLE IF NOT EXISTS " + TABLE_DIFFICULTIES + "("
                 + DIFFICULTY + " INTEGER  ," + LEVEL + " INTEGER  ,"
@@ -62,22 +117,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
             startparam++;
         }
-
-        String CREATE_ONLINE_PROFILE = "CREATE TABLE IF NOT EXISTS " + TABLE_ONLINE_PROFILE + "("
-                + NICKNAME + " TEXT " + ")";
-
-        db.execSQL(CREATE_ONLINE_PROFILE);
-
-    }
-
-    // Upgrading database
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DIFFICULTIES);
-
-        // Create tables again
-        onCreate(db);
     }
 
 

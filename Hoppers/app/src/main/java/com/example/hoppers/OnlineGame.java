@@ -2,6 +2,7 @@ package com.example.hoppers;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -10,14 +11,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
 
@@ -64,13 +66,7 @@ public class OnlineGame extends Activity {
 
                    new Get_JSON_Reply_class().execute("{\"action\" : \"register\", \"nickname\" : \""+setname.getText().toString()+"\"}");
 
-                   name.setText(setname.getText().toString());
-                   setname.setVisibility(View.GONE);
-                   new_name.setVisibility(View.GONE);
 
-                   name.setVisibility(View.VISIBLE);
-                   find_opponent.setVisibility(View.VISIBLE);
-                   opponent.setVisibility(View.VISIBLE);
                }
             }
         });
@@ -137,39 +133,62 @@ public class OnlineGame extends Activity {
 
             if (request != null && s.equals("") == false) {
 
-                if (request.contains("find_opponent")) {
+                try {
 
-                    Log.d("log",s);
+                    JSONObject Jrequest = new JSONObject(request);
+                    JSONObject Jresponse = new JSONObject(s);
 
+                    if (Jrequest.getString("action").equals("find_opponent") && Jresponse.getString("status").equals("error") == false) {
 
-                    opponent.setText(s.substring(s.indexOf("opponent_token") + 17, s.indexOf("opponent_token") + 24));
-
-                    map.setText(s.substring(s.indexOf("map") + 7, s.indexOf("opponent_token") -2));
-
-                    map.setVisibility(View.VISIBLE);
-                    map_too.setVisibility(View.VISIBLE);
-
-                    Toast.makeText(getBaseContext(), "Successful search of an opponent ", Toast.LENGTH_LONG).show();
-
-                    SystemClock.sleep(2000);
+                        Log.d("log", s);
 
 
+                        opponent.setText(Jresponse.get("opponent_token").toString());
 
-                    Intent intent = new Intent(getBaseContext(), OnlineGame_Set_of_Levels.class);
-                    intent.putExtra("Level", s.substring(s.indexOf("map") + 7, s.indexOf("opponent_token") - 4));
-                    startActivity(intent);
+                        map.setText(Jresponse.getString("map"));
 
-                }
+                        map.setVisibility(View.VISIBLE);
+                        map_too.setVisibility(View.VISIBLE);
 
-                if (request.contains("register")) {
-                    if (request.contains("error") == false) {
-                        Toast.makeText(getBaseContext(), "Successful register ", Toast.LENGTH_LONG).show();
-                        token = Integer.parseInt(s.substring(s.indexOf("token") + 8, s.indexOf("token") + 15));
+                        DatabaseHandler dbh = new DatabaseHandler(getBaseContext());
+                        dbh.upgrade_online_profile(dbh.getWritableDatabase());
+                        dbh.close();
+
+                        Toast.makeText(getBaseContext(), "Successful search of an opponent ", Toast.LENGTH_LONG).show();
+
+                        Intent intent = new Intent(getBaseContext(), OnlineGame_Set_of_Levels.class);
+                        intent.putExtra("Level", Jresponse.getString("map"));
+                        startActivity(intent);
+
                     }
-                else Toast.makeText(getBaseContext(), "Name already exists", Toast.LENGTH_SHORT).show();
 
+                    if (Jrequest.getString("action").equals("register")) {
+
+                        Log.d("jr",Jresponse.getString("status").equals("error")+" xd");
+
+                        if (Jresponse.getString("status").equals("error") == false ) {
+
+                            Toast.makeText(getBaseContext(), "Successful register ", Toast.LENGTH_LONG).show();
+
+                            name.setText(setname.getText().toString());
+                            setname.setVisibility(View.GONE);
+                            new_name.setVisibility(View.GONE);
+
+                            name.setVisibility(View.VISIBLE);
+                            find_opponent.setVisibility(View.VISIBLE);
+                            opponent.setVisibility(View.VISIBLE);
+
+
+                            token = Jresponse.getInt("token");
+
+                        } else
+                            Toast.makeText(getBaseContext(), "Name already exists", Toast.LENGTH_SHORT).show();
+
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-
             }
 
         }

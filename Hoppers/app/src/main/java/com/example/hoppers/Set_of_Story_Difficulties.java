@@ -60,6 +60,9 @@ public class Set_of_Story_Difficulties extends Activity {
             cursor.close();
         }
 
+        db.close();
+        dbh.close();
+
 
         DisplayMetrics displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);

@@ -85,6 +85,8 @@ public class Set_of_Story_Levels extends Activity {
                 image.setVisibility(View.VISIBLE);
             }
         }
+        db.close();
+        dbh.close();
     }
 
     public void onClick(View v){
