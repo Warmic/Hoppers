@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#4DE5F0"
+    android:paddingTop = "25dp"
+    android:paddingLeft="20dp">
+    <!--android:background="@drawable/pondbackground"-->
+
+    <LinearLayout
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="45dp">
+
+        <Button
+            android:layout_width="95dp"
+            android:layout_height="76dp"
+            android:adjustViewBounds="true"
+            android:background="@drawable/lilipad"
+            android:onClick="onClick"
+            android:scaleType="fitCenter"
+            android:tag="3"
+            android:text="3"
+            android:textSize="35sp" />
+
+        <Button
+            android:layout_width="95dp"
+            android:layout_height="76dp"
+            android:layout_marginStart="20dp"
+            android:adjustViewBounds="true"
+            android:background="@drawable/lilipad"
+            android:onClick="onClick"
+            android:scaleType="fitCenter"
+            android:tag="4"
+            android:text="4"
+            android:textSize="35sp" />
+
+        <Button
+            android:layout_width="95dp"
+            android:layout_height="76dp"
+            android:layout_marginStart="20dp"
+            android:adjustViewBounds="true"
+            android:background="@drawable/lilipad"
+            android:onClick="onClick"
+            android:scaleType="fitCenter"
+            android:tag="5"
+            android:text="5"
+            android:textSize="35sp" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="70dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="95dp"
+            android:layout_height="76dp"
+            android:adjustViewBounds="true"
+            android:background="@drawable/lilipad"
+            android:onClick="onClick"
+            android:scaleType="fitCenter"
+            android:tag="6"
+            android:text="6"
+            android:textSize="35sp" />
+
+        <Button
+            android:layout_width="95dp"
+            android:layout_height="76dp"
+            android:layout_marginStart="20dp"
+            android:adjustViewBounds="true"
+            android:background="@drawable/lilipad"
+            android:onClick="onClick"
+            android:scaleType="fitCenter"
+            android:tag="7"
+            android:text="7"
+            android:textSize="35sp" />
+
+        <Button
+            android:layout_width="95dp"
+            android:layout_height="76dp"
+            android:layout_marginStart="20dp"
+            android:adjustViewBounds="true"
+            android:background="@drawable/lilipad"
+            android:onClick="onClick"
+            android:scaleType="fitCenter"
+            android:tag="8"
+            android:text="8"
+            android:textSize="35sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="70dp">
+
+        <Button
+            android:layout_width="95dp"
+            android:layout_height="76dp"
+            android:onClick="onClick"
+            android:tag="9"
+            android:background="@drawable/lilipad"
+            android:text="9"
+            android:textSize="35sp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"/>
+
+        <Button
+            android:layout_width="95dp"
+            android:layout_height="76dp"
+            android:adjustViewBounds="true"
+            android:background="@drawable/lilipad"
+            android:onClick="onClick"
+            android:scaleType="fitCenter"
+            android:layout_marginStart="20dp"
+            android:tag="10"
+            android:text="10"
+            android:textSize="35sp" />
+        <Button
+            android:layout_width="95dp"
+            android:layout_height="76dp"
+            android:adjustViewBounds="true"
+            android:background="@drawable/lilipad"
+            android:onClick="onClick"
+            android:scaleType="fitCenter"
+            android:layout_marginStart="20dp"
+            android:tag="11"
+            android:text="11"
+            android:textSize="35sp" />
+
+    </LinearLayout>
+
+</LinearLayout>
