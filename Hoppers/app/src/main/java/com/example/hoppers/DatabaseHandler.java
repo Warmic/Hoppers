@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 
 public class DatabaseHandler extends SQLiteOpenHelper {
@@ -27,9 +28,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String TABLE_ONLINE_PROFILE = "online_profile";
 
     //Online_profile Table Columns names
-    public static final String NICKNAME = "nickname";
     public static final String MAP = "map";
-    //progress,history of games etc.
+    //progress,history of games etc. TABLE
+    public static final String TABLE_PLAYER_PROFILE = "player_profile";
+    public static final String NICKNAME = "nickname";
+    public static final String TOKEN = "token";
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -63,6 +66,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     }
 
+    public void upgrade_player_profile(SQLiteDatabase db) {
+        // Drop older table if existed
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYER_PROFILE);
+    }
+
     public boolean check_if_exists(SQLiteDatabase db, String tableName) {
             if (tableName == null || db == null || !db.isOpen())
             {
@@ -79,8 +87,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             return count > 0;
         }
 
+    //creating databases
+    public void create_player_profile(SQLiteDatabase db){
 
-    //creating database
+
+        String CREATE_PLAYER_PROFILE = "CREATE TABLE IF NOT EXISTS "+ TABLE_PLAYER_PROFILE+ "("+NICKNAME+" TEXT ,"
+                +TOKEN+" INTEGER  )";
+
+        db.execSQL(CREATE_PLAYER_PROFILE);
+
+
+    }
+
     public void create_online_profile(SQLiteDatabase db){
 
 
@@ -118,8 +136,5 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             startpar++;
         }
     }
-
-
-
 
 }

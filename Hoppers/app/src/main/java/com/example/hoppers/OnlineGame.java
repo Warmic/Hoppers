@@ -1,16 +1,25 @@
 package com.example.hoppers;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.SystemClock;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +30,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 
@@ -29,44 +40,102 @@ public class OnlineGame extends Activity {
     EditText setname;
     Button new_name;
     Button find_opponent;
-    TextView opponent;
+    Button delete_name;
     TextView name;
-    TextView map;
-    TextView map_too;
+    LinearLayout setup_layout;
+    LinearLayout search_layout;
+    LinearLayout name_layout;
+    ArrayList<Spinner> spinners = new ArrayList<>();
+
+    ArrayAdapter<String> adapter ;
+    String [] levels = new String[] {"0","4","5","6","7","8","9","10","11"};
+    String [] levels_extra = new String[] {"0","1","2","3","4","5"};
+    String msg = "";
+    String nickname;
+
+    int [] arr = new int [5];
+    int amount_random_levels = 0;
+    int amount_not_random_levels = 0;
     int token = 0;
+    int count = 0;
+    boolean registered;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.online_game_layout);
 
+
+        spinners.add((Spinner)findViewById(R.id.spin0));
+        spinners.add((Spinner)findViewById(R.id.spin1));
+        spinners.add((Spinner)findViewById(R.id.spin2));
+        spinners.add((Spinner)findViewById(R.id.spin3));
+        spinners.add((Spinner)findViewById(R.id.spin4));
+
+        setup_layout = (LinearLayout) findViewById(R.id.setup_layout);
+        name_layout = (LinearLayout) findViewById(R.id.name_layout);
+        search_layout = (LinearLayout) findViewById(R.id.search_layout);
+
         setname = (EditText) findViewById(R.id.new_name);
-        new_name = (Button) findViewById(R.id.new_name_button);
         name = (TextView) findViewById(R.id.name);
+        new_name = (Button) findViewById(R.id.new_name_button);
+        delete_name = (Button) findViewById(R.id.delete_name);
         find_opponent = (Button) findViewById(R.id.find_opponent);
-        opponent = (TextView) findViewById(R.id.opponent_name);
-        map = (TextView) findViewById(R.id.map_text_test);
-        map_too = (TextView) findViewById(R.id.map_text_test_too);
+
+        DatabaseHandler dbh = new DatabaseHandler(this);
+        dbh.create_player_profile(dbh.getWritableDatabase());
+        SQLiteDatabase db = dbh.getWritableDatabase();
+
+        String selectQuery = "SELECT  * FROM " + DatabaseHandler.TABLE_PLAYER_PROFILE ;
+
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+                do {
+                    String expected_nickname = cursor.getString(cursor.getColumnIndex(DatabaseHandler.NICKNAME));
+                    Log.d("cur", expected_nickname + " XD");
+
+                    if (expected_nickname.equals("") == false) {
+                        name.setText("Logged as : " + expected_nickname);
+                        registered = true;
+                        token = cursor.getInt(cursor.getColumnIndex(DatabaseHandler.TOKEN));
+                    }
+                } while (cursor.moveToNext());
+            }
 
 
-        if (name.getText().toString().equals(null)==false){
+
+        cursor.close();
+        db.close();
+        dbh.close();
+
+        if (name.getText().toString().equals("")==true){
             new_name.setVisibility(View.VISIBLE);
             setname.setVisibility(View.VISIBLE);
-            opponent.setVisibility(View.GONE);
-            find_opponent.setVisibility(View.GONE);
             name.setVisibility(View.GONE);
-            map.setVisibility(View.GONE);
-            map_too.setVisibility(View.GONE);
+            delete_name.setVisibility(View.GONE);
+            search_layout.setVisibility(View.GONE);
+            setup_layout.setVisibility(View.GONE);
+        } else {
+            new_name.setVisibility(View.GONE);
+            setname.setVisibility(View.GONE);
+            delete_name.setVisibility(View.VISIBLE);
+            search_layout.setVisibility(View.VISIBLE);
+            setup_layout.setVisibility(View.VISIBLE);
         }
 
         new_name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                if (setname.getText().toString().equals("")==false){
-
-                   new Get_JSON_Reply_class().execute("{\"action\" : \"register\", \"nickname\" : \""+setname.getText().toString()+"\"}");
-
-
+                   JSONObject jsononbject = new JSONObject();
+                   try {
+                       jsononbject.put("action","register");
+                       jsononbject.put("nickname",setname.getText().toString());
+                   } catch (JSONException e) {
+                       e.printStackTrace();
+                   }
+                   new Get_JSON_Reply_class().execute(jsononbject.toString());
                }
             }
         });
@@ -74,18 +143,107 @@ public class OnlineGame extends Activity {
         find_opponent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                new Get_JSON_Reply_class().execute("{\"action\" : \"find_opponent\", \"token\" : "+token+"}");
+                JSONObject jsonobject = new JSONObject();
+                try{
+                    jsonobject.put("action","find_opponent");
+                    jsonobject.put("token",token);
+                    if (amount_random_levels!=0){
+                        jsonobject.put("random",true);
+                        jsonobject.put("amount",amount_random_levels);
+                    }
+                    else{
+                        jsonobject.put("random",false);
+                        jsonobject.put("amount",amount_not_random_levels);
+                        jsonobject.put("difficulties", Arrays.toString(arr));
+                    }
+                }
+                catch (JSONException e){
+                    e.printStackTrace();
+                }
+                new Get_JSON_Reply_class().execute(jsonobject.toString());
             }
         });
-
     }
 
-    @Override
-    public void onBackPressed() {
-        Intent intent = new Intent(getBaseContext(),MainActivity.class);
-        startActivity(intent);
+
+    public void onRadioButtonClick(View v) {
+        LinearLayout spinners_layout = (LinearLayout) findViewById(R.id.spinners_layout);
+        msg = v.getTag().toString();
+        spinners_layout.setVisibility(View.VISIBLE);
+
+
+        if (msg.equals("rand") == false) {
+            for (Spinner spin : spinners
+                    ) {
+
+                adapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_item,levels);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+                spin.setAdapter(adapter);
+
+                spin.setPrompt("LevelChoice");
+
+                spin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        count = 0;
+                        int pos = Integer.parseInt(parent.getTag().toString());
+
+                            if (position != 0 && pos + 1 < spinners.size()) {
+                                spinners.get(pos + 1).setVisibility(View.VISIBLE);
+                                arr[pos] = 1;
+                                find_opponent.setClickable(true);
+                            }
+                            if (pos + 1 == spinners.size()) arr[pos] = Integer.parseInt(levels[position]);
+
+                            if (position == 0 && arr[pos] == 1) arr[pos] = 0;
+
+                            for (int i = 0; i < 5; i++) {
+                                if (arr[i] != 0) count++;
+                            }
+
+                            amount_not_random_levels = count;
+                            //arr - difficulties that will be sent
+                            Toast.makeText(getBaseContext(), "count " + count, Toast.LENGTH_SHORT).show();
+
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+            }
+        } else {
+
+            for (int i = 1; i < 5; i++) {
+                spinners.get(i).setVisibility(View.GONE);
+            }
+            Spinner spin = spinners.get(0);
+
+            adapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_item,levels_extra);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+            spin.setAdapter(adapter);
+
+            spin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    if (position!=0) {
+                        amount_random_levels = Integer.parseInt(levels_extra[position]);
+                        find_opponent.setClickable(true);
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+            Toast.makeText(getBaseContext(), "amount " + amount_random_levels, Toast.LENGTH_SHORT).show();
+        }
     }
+
 
     public class Get_JSON_Reply_class extends AsyncTask<String,Void,String> {
 
@@ -140,15 +298,6 @@ public class OnlineGame extends Activity {
 
                     if (Jrequest.getString("action").equals("find_opponent") && Jresponse.getString("status").equals("error") == false) {
 
-                        Log.d("log", s);
-
-
-                        opponent.setText(Jresponse.get("opponent_token").toString());
-
-                        map.setText(Jresponse.getString("map"));
-
-                        map.setVisibility(View.VISIBLE);
-                        map_too.setVisibility(View.VISIBLE);
 
                         DatabaseHandler dbh = new DatabaseHandler(getBaseContext());
                         dbh.upgrade_online_profile(dbh.getWritableDatabase());
@@ -164,27 +313,54 @@ public class OnlineGame extends Activity {
 
                     if (Jrequest.getString("action").equals("register")) {
 
-                        Log.d("jr",Jresponse.getString("status").equals("error")+" xd");
-
                         if (Jresponse.getString("status").equals("error") == false ) {
 
                             Toast.makeText(getBaseContext(), "Successful register ", Toast.LENGTH_LONG).show();
 
-                            name.setText(setname.getText().toString());
+                            registered = true;
+                            token = Jresponse.getInt("token");
+
+                            name.setText("Logged as : "+setname.getText().toString());
+
+                            DatabaseHandler dbh = new DatabaseHandler(getBaseContext());
+
+                            SQLiteDatabase db = dbh.getWritableDatabase();
+
+                            String insertQuery = "REPLACE INTO " + DatabaseHandler.TABLE_PLAYER_PROFILE+ "(" + DatabaseHandler.NICKNAME+ ","
+                                    + DatabaseHandler.TOKEN+ ")" + " VALUES ('"+setname.getText().toString()+"',"+token+")";
+
+                            db.execSQL(insertQuery);
+
+
+                            String selectQuery = "SELECT  * FROM " + DatabaseHandler.TABLE_PLAYER_PROFILE ;
+
+                            Cursor cursor = db.rawQuery(selectQuery, null);
+
+                            if (cursor.moveToFirst()) {
+                                do {
+                                    String expected_nickname = cursor.getString(cursor.getColumnIndex(DatabaseHandler.NICKNAME));
+                                    Log.d("cur", cursor.getString(cursor.getColumnIndex(DatabaseHandler.TOKEN)) + " XDS");
+                                } while (cursor.moveToNext());
+                            }
+
+                            cursor.close();
+
+                            db.close();
+                            dbh.close();
+
                             setname.setVisibility(View.GONE);
                             new_name.setVisibility(View.GONE);
 
+                            delete_name.setVisibility(View.VISIBLE);
                             name.setVisibility(View.VISIBLE);
-                            find_opponent.setVisibility(View.VISIBLE);
-                            opponent.setVisibility(View.VISIBLE);
+                            search_layout.setVisibility(View.VISIBLE);
+                            setup_layout.setVisibility(View.VISIBLE);
 
-
-                            token = Jresponse.getInt("token");
 
                         } else
                             Toast.makeText(getBaseContext(), "Name already exists", Toast.LENGTH_SHORT).show();
-
                     }
+
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -192,6 +368,63 @@ public class OnlineGame extends Activity {
             }
 
         }
+    }
+
+    public void onDeleteName(View v){
+        search_layout.setVisibility(View.GONE);
+        setup_layout.setVisibility(View.GONE);
+        setname.setVisibility(View.VISIBLE);
+        new_name.setVisibility(View.VISIBLE);
+        delete_name.setVisibility(View.GONE);
+        name.setVisibility(View.GONE);
+        setname.setText("");
+
+        disconnectRequest();
+
+        DatabaseHandler dbh = new DatabaseHandler(getBaseContext());
+        SQLiteDatabase db = dbh.getWritableDatabase();
+
+
+        String insertQuery = "REPLACE INTO " + DatabaseHandler.TABLE_PLAYER_PROFILE+ "(" + DatabaseHandler.NICKNAME+ ","
+                + DatabaseHandler.TOKEN+ ")" + " VALUES ('',0)";
+
+        db.execSQL(insertQuery);
+
+        String selectQuery = "SELECT  * FROM " + DatabaseHandler.TABLE_PLAYER_PROFILE ;
+
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                String expected_nickname = cursor.getString(cursor.getColumnIndex(DatabaseHandler.NICKNAME));
+                Log.d("cur", cursor.getString(cursor.getColumnIndex(DatabaseHandler.TOKEN)) + " XDS");
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+
+        db.close();
+        dbh.close();
+    }
+
+    public void disconnectRequest(){
+
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("action","disconnect");
+                jsonObject.put("token",token);
+                new Get_JSON_Reply_class().execute(jsonObject.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(getBaseContext(),MainActivity.class);
+
+        startActivity(intent);
     }
 
 }
