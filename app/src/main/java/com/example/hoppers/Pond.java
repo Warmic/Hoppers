@@ -15,6 +15,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -27,7 +28,6 @@ public class Pond extends View {
     public LiliPads liliPads[][] = new LiliPads[5][5];
     public ArrayList<Move> moves = new ArrayList<Move>();
     public ArrayList<Point> points = new ArrayList();
-
 
 
     private int startx = -1;
@@ -50,7 +50,6 @@ public class Pond extends View {
     private Bitmap background = BitmapFactory.decodeResource(getResources(), R.drawable.pondbackground);
 
 
-
     public String thislevel = "";
     public String nextmap;
     public String map;
@@ -58,14 +57,12 @@ public class Pond extends View {
     private boolean dragfrog;
     private boolean drag;
     private boolean drawn;
-    private boolean messageshown ;
+    private boolean messageshown;
     public boolean randomlevel;
     public boolean levelfinished;
     public boolean setupcomplete;
     public boolean online;
     public boolean story;
-
-
 
 
     public Pond(Context context, AttributeSet attributeSet) {
@@ -94,26 +91,32 @@ public class Pond extends View {
                 }
             }
 
-            if (setupcomplete==false) Pond.this.setup(liliPads); else
-            if (map!=null)
-            {
-                for (int i = 0; i < map.length(); i+=5) {
-                    int x =  map.charAt(i)-48;
-                    int y =  map.charAt(i+1)-48;
+            if (setupcomplete == false) Pond.this.setup(liliPads);
+            else if (map != null) {
+                for (int i = 0; i < map.length(); i += 5) {
+                    int x = map.charAt(i) - 48;
+                    int y = map.charAt(i + 1) - 48;
                     boolean fr;
                     boolean rfr;
-                    if (map.charAt(i+2)=='t') {fr = true; rfr = false;} else
-                    if (map.charAt(i+3)=='t') {fr = false;rfr = true;} else
-                    {fr = false;rfr=false;}
-                    liliPads[x][y].hasfrog=fr;
-                    liliPads[x][y].is_there_a_red_frog=rfr;
-                    if (points.size()!=amountoffrogs) points.add(new Point(1,1));
+                    if (map.charAt(i + 2) == 't') {
+                        fr = true;
+                        rfr = false;
+                    } else if (map.charAt(i + 3) == 't') {
+                        fr = false;
+                        rfr = true;
+                    } else {
+                        fr = false;
+                        rfr = false;
+                    }
+                    liliPads[x][y].hasfrog = fr;
+                    liliPads[x][y].is_there_a_red_frog = rfr;
+                    if (points.size() != amountoffrogs) points.add(new Point(1, 1));
                 }
 
             }
         }
 
-        if (drawn==false) {
+        if (drawn == false) {
 
             drawn = true;
 
@@ -165,11 +168,11 @@ public class Pond extends View {
                         canvas.drawLine(x, y, x - diffx * 3 * (float) Math.cos(deg), y - diffy * 3 * (float) Math.sin(deg), paint);
                         //diagonal
                     }
-                    if ((j==0)&&(i==2)){
-                        canvas.drawLine(x,y,x,y+diffy*2,paint);
+                    if ((j == 0) && (i == 2)) {
+                        canvas.drawLine(x, y, x, y + diffy * 2, paint);
                     }
-                    if ((j==4)&&(i==2)){
-                        canvas.drawLine(x,y,x,y-diffy*2,paint);
+                    if ((j == 4) && (i == 2)) {
+                        canvas.drawLine(x, y, x, y - diffy * 2, paint);
                     }
 
                 }
@@ -208,28 +211,27 @@ public class Pond extends View {
         }
 
 
-        if (moves.size()==points.size()-1) {
-            levelfinished =true;
-            if (current>0 && story){
+        if (moves.size() == points.size() - 1) {
+            levelfinished = true;
+            if (current > 0 && story) {
 
                 DatabaseHandler dbh = new DatabaseHandler(getContext());
 
                 SQLiteDatabase db = dbh.getWritableDatabase();
 
-                String insertQuery = "UPDATE difficulties  SET completed=1 where difficulty is'"+points.size()+"' AND level is '"+current+"'" ;
+                String insertQuery = "UPDATE difficulties  SET completed=1 where difficulty is'" + points.size() + "' AND level is '" + current + "'";
 
                 db.execSQL(insertQuery);
 
                 db.close();
                 dbh.close();
-            }
-            else if (online){
+            } else if (online) {
                 DatabaseHandler dbh = new DatabaseHandler(getContext());
 
                 SQLiteDatabase db = dbh.getWritableDatabase();
 
-                String insertQuery = "UPDATE online_profile SET completed=1 where level is'"+
-                        current+"'";
+                String insertQuery = "UPDATE online_profile SET completed=1 where level is'" +
+                        current + "'";
 
                 db.execSQL(insertQuery);
 
@@ -239,8 +241,8 @@ public class Pond extends View {
         } else levelfinished = false;
 
         if (levelfinished && messageshown == false) {
-            if (online){
-                if (current<total) {
+            if (online) {
+                if (current < total) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                     builder.setMessage("Congratulations! \n Next level?")
                             .setCancelable(false)
@@ -265,9 +267,10 @@ public class Pond extends View {
                     alert.show();
                 }
                 //TODO HANDLE A SITUATION WHERE YOU HAVE FINISHED LAST LEVEL
-                else {}
+                else {
+                }
             }
-            if (story ) {
+            if (story) {
 
                 if (current < total) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -353,7 +356,7 @@ public class Pond extends View {
         int starti = rand.nextInt(5);
         int startj = rand.nextInt(5);
 
-        thislevel ="";
+        thislevel = "";
 
 
         int tries = 0;
@@ -365,7 +368,7 @@ public class Pond extends View {
             startj = rand.nextInt(5);
         }
 
-        Log.d("STES",starti +" "+startj +"\n");
+        Log.d("STES", starti + " " + startj + "\n");
 
         points.add(new Point(starti, startj));
         startingi = starti;
@@ -380,11 +383,11 @@ public class Pond extends View {
 
             for (int i = 0; i < size; i++) {
 
-                if (points.size()==amountoffrogs) break outerloop;
+                if (points.size() == amountoffrogs) break outerloop;
                 if (points.get(i).x % 2 == 0)
                     check_if_i_2(points.get(i).x, points.get(i).y, arr);
 
-                if (points.size()==amountoffrogs) break outerloop;
+                if (points.size() == amountoffrogs) break outerloop;
                 if (points.get(i).x % 2 == 1)
                     check_if_i_1(points.get(i).x, points.get(i).y, arr);
 
@@ -417,7 +420,7 @@ public class Pond extends View {
                     starti = rand.nextInt(5);
                     startj = rand.nextInt(5);
                 }
-                Log.d("STES",starti +" "+startj);
+                Log.d("STES", starti + " " + startj);
 
                 points.add(new Point(starti, startj));
                 startingi = starti;
@@ -432,18 +435,17 @@ public class Pond extends View {
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
 
-                if (arr[i][j]!=null) {
-                    thislevel +=""+ i + "" + j;
-                    if (arr[i][j].hasfrog) thislevel +=  "t";
-                    else thislevel +=  "f";
+                if (arr[i][j] != null) {
+                    thislevel += "" + i + "" + j;
+                    if (arr[i][j].hasfrog) thislevel += "t";
+                    else thislevel += "f";
                     if (arr[i][j].is_there_a_red_frog) thislevel += "t";
-                    else thislevel +=  "f";
-                }
-                else thislevel+="n";
+                    else thislevel += "f";
+                } else thislevel += "n";
             }
         }
 
-        Log.d("LEV",thislevel);
+        Log.d("LEV", thislevel);
         setupcomplete = true;
     }
 
@@ -524,9 +526,9 @@ public class Pond extends View {
 
     public LiliPads[][] check_if_i_2(int starti, int startj, LiliPads arr[][]) {
 
-         if (
-             //startingi==4 && startingj==2 || startingi==3 && startingj==1 ||
-        startingi==1 && startingj==1) {
+        if (
+            //startingi==4 && startingj==2 || startingi==3 && startingj==1 ||
+                startingi == 1 && startingj == 1) {
             if ((startj == 0) && (arr[starti][startj + 4].hasfrog == false) && (arr[starti][startj + 2].hasfrog == false)
                     && (arr[starti][startj + 4].is_there_a_red_frog == false) && (arr[starti][startj + 2].is_there_a_red_frog == false)) {
                 return j_is_0_check_bottom(starti, startj, arr);
@@ -540,8 +542,7 @@ public class Pond extends View {
                     && (arr[starti][startj - 4].is_there_a_red_frog == false) && (arr[starti][startj - 2].is_there_a_red_frog == false)) {
                 return j_is_4_check_top(starti, startj, arr);
             } else return check_if_i_1(starti, startj, arr);
-        }
-        else if (startingi==3 && startingj==1 || startingi==4 && startingj==2 || startingi==0 && startingj==2) {
+        } else if (startingi == 3 && startingj == 1 || startingi == 4 && startingj == 2 || startingi == 0 && startingj == 2) {
             if ((starti == 4) && (arr[starti - 2][startj].hasfrog == false) && (arr[starti - 4][startj].hasfrog == false)
                     && (arr[starti - 2][startj].is_there_a_red_frog == false) && (arr[starti - 4][startj].is_there_a_red_frog == false)) {
                 return i_is_4_check_left(starti, startj, arr);
@@ -554,47 +555,41 @@ public class Pond extends View {
             } else if ((startj == 4) && (arr[starti][startj - 4].hasfrog == false) && (arr[starti][startj - 2].hasfrog == false)
                     && (arr[starti][startj - 4].is_there_a_red_frog == false) && (arr[starti][startj - 2].is_there_a_red_frog == false)) {
                 return j_is_4_check_top(starti, startj, arr);
-            }
-            else return check_if_i_1(starti, startj, arr);
-        }
-        else if (startingi==1 && startingj==3){
+            } else return check_if_i_1(starti, startj, arr);
+        } else if (startingi == 1 && startingj == 3) {
             if ((startj == 4) && (arr[starti][startj - 4].hasfrog == false) && (arr[starti][startj - 2].hasfrog == false)
                     && (arr[starti][startj - 4].is_there_a_red_frog == false) && (arr[starti][startj - 2].is_there_a_red_frog == false)) {
-                return j_is_4_check_top(starti,startj,arr);
-            }else if ((starti == 4) && (arr[starti - 2][startj].hasfrog == false) && (arr[starti - 4][startj].hasfrog == false)
+                return j_is_4_check_top(starti, startj, arr);
+            } else if ((starti == 4) && (arr[starti - 2][startj].hasfrog == false) && (arr[starti - 4][startj].hasfrog == false)
                     && (arr[starti - 2][startj].is_there_a_red_frog == false) && (arr[starti - 4][startj].is_there_a_red_frog == false)) {
-                return i_is_4_check_left(starti,startj,arr);
-            }else if ((startj == 0) && (arr[starti][startj + 4].hasfrog == false) && (arr[starti][startj + 2].hasfrog == false)
+                return i_is_4_check_left(starti, startj, arr);
+            } else if ((startj == 0) && (arr[starti][startj + 4].hasfrog == false) && (arr[starti][startj + 2].hasfrog == false)
                     && (arr[starti][startj + 4].is_there_a_red_frog == false) && (arr[starti][startj + 2].is_there_a_red_frog == false)) {
-                return j_is_0_check_bottom(starti,startj,arr);
-            }else if ((starti == 0) && (arr[starti + 2][startj].hasfrog == false) && (arr[starti + 4][startj].hasfrog == false)
+                return j_is_0_check_bottom(starti, startj, arr);
+            } else if ((starti == 0) && (arr[starti + 2][startj].hasfrog == false) && (arr[starti + 4][startj].hasfrog == false)
                     && (arr[starti + 2][startj].is_there_a_red_frog == false) && (arr[starti + 4][startj].is_there_a_red_frog == false)) {
-                return i_is_0_check_right(starti,startj,arr);
-            }
-            else return check_if_i_1(starti,startj,arr);
-        }
-        else if (startingi==3 && startingj==3){
+                return i_is_0_check_right(starti, startj, arr);
+            } else return check_if_i_1(starti, startj, arr);
+        } else if (startingi == 3 && startingj == 3) {
             if ((starti == 4) && (arr[starti - 2][startj].hasfrog == false) && (arr[starti - 4][startj].hasfrog == false)
                     && (arr[starti - 2][startj].is_there_a_red_frog == false) && (arr[starti - 4][startj].is_there_a_red_frog == false)) {
-                return i_is_4_check_left(starti,startj,arr);
-            }else if ((startj == 0) && (arr[starti][startj + 4].hasfrog == false) && (arr[starti][startj + 2].hasfrog == false)
+                return i_is_4_check_left(starti, startj, arr);
+            } else if ((startj == 0) && (arr[starti][startj + 4].hasfrog == false) && (arr[starti][startj + 2].hasfrog == false)
                     && (arr[starti][startj + 4].is_there_a_red_frog == false) && (arr[starti][startj + 2].is_there_a_red_frog == false)) {
-                return j_is_0_check_bottom(starti,startj,arr);
-            }else if ((startj == 4) && (arr[starti][startj - 4].hasfrog == false) && (arr[starti][startj - 2].hasfrog == false)
+                return j_is_0_check_bottom(starti, startj, arr);
+            } else if ((startj == 4) && (arr[starti][startj - 4].hasfrog == false) && (arr[starti][startj - 2].hasfrog == false)
                     && (arr[starti][startj - 4].is_there_a_red_frog == false) && (arr[starti][startj - 2].is_there_a_red_frog == false)) {
-                return j_is_4_check_top(starti,startj,arr);
-            }else if ((starti == 0) && (arr[starti + 2][startj].hasfrog == false) && (arr[starti + 4][startj].hasfrog == false)
+                return j_is_4_check_top(starti, startj, arr);
+            } else if ((starti == 0) && (arr[starti + 2][startj].hasfrog == false) && (arr[starti + 4][startj].hasfrog == false)
                     && (arr[starti + 2][startj].is_there_a_red_frog == false) && (arr[starti + 4][startj].is_there_a_red_frog == false)) {
-                return i_is_0_check_right(starti,startj,arr);
-            }
-            else return check_if_i_1(starti,startj,arr);
-        }
-        else return check_if_i_1(starti,startj,arr);
+                return i_is_0_check_right(starti, startj, arr);
+            } else return check_if_i_1(starti, startj, arr);
+        } else return check_if_i_1(starti, startj, arr);
     }
 
 //-------------------------------------------------------------------- preparing functions for an algorithm
 
-    public LiliPads[][] i_gr_1_j_gr_1(int i,int j,LiliPads arr[][]){
+    public LiliPads[][] i_gr_1_j_gr_1(int i, int j, LiliPads arr[][]) {
         arr[i - 1][j - 1].hasfrog = true;
         if (arr[i][j].hasfrog) {
             arr[i][j].hasfrog = false;
@@ -611,7 +606,7 @@ public class Pond extends View {
         return arr;
     }
 
-    public LiliPads[][] i_les_3_j_les_3(int i,int j,LiliPads arr[][]){
+    public LiliPads[][] i_les_3_j_les_3(int i, int j, LiliPads arr[][]) {
         arr[i + 1][j + 1].hasfrog = true;
         if (arr[i][j].hasfrog) {
             arr[i][j].hasfrog = false;
@@ -628,142 +623,135 @@ public class Pond extends View {
         return arr;
     }
 
-    public LiliPads[][] i_gr_1_j_les_3(int i,int j,LiliPads arr[][]) {
+    public LiliPads[][] i_gr_1_j_les_3(int i, int j, LiliPads arr[][]) {
 
-            arr[i - 1][j + 1].hasfrog = true;
+        arr[i - 1][j + 1].hasfrog = true;
 
-            if (arr[i][j].hasfrog) {
-                arr[i][j].hasfrog = false;
-                arr[i - 2][j + 2].hasfrog = true;
-            } else if (arr[i][j].is_there_a_red_frog) {
-                arr[i][j].is_there_a_red_frog = false;
-                arr[i - 2][j + 2].is_there_a_red_frog = true;
-            }
-
-
-            points.remove(points.indexOf(new Point(i, j)));
-            points.add(new Point(i - 1, j + 1));
-            points.add(new Point(i - 2, j + 2));
-
-            return arr;
-
+        if (arr[i][j].hasfrog) {
+            arr[i][j].hasfrog = false;
+            arr[i - 2][j + 2].hasfrog = true;
+        } else if (arr[i][j].is_there_a_red_frog) {
+            arr[i][j].is_there_a_red_frog = false;
+            arr[i - 2][j + 2].is_there_a_red_frog = true;
         }
 
-    public LiliPads[][] i_les_3_j_gr_1 ( int i, int j, LiliPads arr[][]){
 
-            arr[i + 1][j - 1].hasfrog = true;
+        points.remove(points.indexOf(new Point(i, j)));
+        points.add(new Point(i - 1, j + 1));
+        points.add(new Point(i - 2, j + 2));
 
-            if (arr[i][j].hasfrog) {
-                arr[i][j].hasfrog = false;
-                arr[i + 2][j - 2].hasfrog = true;
-            } else if (arr[i][j].is_there_a_red_frog) {
-                arr[i][j].is_there_a_red_frog = false;
-                arr[i + 2][j - 2].is_there_a_red_frog = true;
-            }
+        return arr;
 
-            points.remove(points.indexOf(new Point(i, j)));
-            points.add(new Point(i + 1, j - 1));
-            points.add(new Point(i + 2, j - 2));
+    }
 
-            return arr;
+    public LiliPads[][] i_les_3_j_gr_1(int i, int j, LiliPads arr[][]) {
+
+        arr[i + 1][j - 1].hasfrog = true;
+
+        if (arr[i][j].hasfrog) {
+            arr[i][j].hasfrog = false;
+            arr[i + 2][j - 2].hasfrog = true;
+        } else if (arr[i][j].is_there_a_red_frog) {
+            arr[i][j].is_there_a_red_frog = false;
+            arr[i + 2][j - 2].is_there_a_red_frog = true;
         }
-        //---------------------------------------------------------------------------functions are prepared
+
+        points.remove(points.indexOf(new Point(i, j)));
+        points.add(new Point(i + 1, j - 1));
+        points.add(new Point(i + 2, j - 2));
+
+        return arr;
+    }
+    //---------------------------------------------------------------------------functions are prepared
 
 
     public LiliPads[][] check_if_i_1(int starti, int startj, LiliPads arr[][]) {
 
-        if (startingi==4 && startingj==2){
+        if (startingi == 4 && startingj == 2) {
 
-            if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)
-                    && (arr[starti - 1][startj + 1].is_there_a_red_frog == false) && (arr[starti - 2][startj + 2].is_there_a_red_frog == false)) {
-                return  i_gr_1_j_les_3(starti,startj,arr);
-            }else if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)
-                    && (arr[starti + 1][startj - 1].is_there_a_red_frog == false) && (arr[starti + 2][startj - 2].is_there_a_red_frog == false)) {
-                return   i_les_3_j_gr_1(starti,startj,arr);
-            }else if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 1][startj + 1].is_there_a_red_frog == false)
-                    && (arr[starti + 2][startj + 2].hasfrog == false) && (arr[starti + 2][startj + 2].is_there_a_red_frog == false)) {
-                return i_les_3_j_les_3(starti,startj,arr);
-            }else if ((starti > 1) && (startj > 1) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)
-                    && (arr[starti - 1][startj - 1].is_there_a_red_frog == false) && (arr[starti - 2][startj - 2].is_there_a_red_frog == false)) {
-                return i_gr_1_j_gr_1(starti,startj,arr);
-            } else return arr;
-        }
-        else if (startingi==2 && startingj==0){
-            if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 1][startj + 1].is_there_a_red_frog == false)
-                    && (arr[starti + 2][startj + 2].hasfrog == false) && (arr[starti + 2][startj + 2].is_there_a_red_frog == false)) {
-                return i_les_3_j_les_3(starti,startj,arr);
-            }else if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)
-                    && (arr[starti - 1][startj + 1].is_there_a_red_frog == false) && (arr[starti - 2][startj + 2].is_there_a_red_frog == false)) {
-                return  i_gr_1_j_les_3(starti,startj,arr);
-            }else if ((starti > 1) && (startj > 1) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)
-                    && (arr[starti - 1][startj - 1].is_there_a_red_frog == false) && (arr[starti - 2][startj - 2].is_there_a_red_frog == false)) {
-                return i_gr_1_j_gr_1(starti,startj,arr);
-            }else if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)
-                    && (arr[starti + 1][startj - 1].is_there_a_red_frog == false) && (arr[starti + 2][startj - 2].is_there_a_red_frog == false)) {
-                return   i_les_3_j_gr_1(starti,startj,arr);
-            } else return arr;
-        }
-        else if (startingi>1&&startingj>1){
             if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)
                     && (arr[starti - 1][startj + 1].is_there_a_red_frog == false) && (arr[starti - 2][startj + 2].is_there_a_red_frog == false)) {
                 return i_gr_1_j_les_3(starti, startj, arr);
-            }else if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)
+            } else if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)
                     && (arr[starti + 1][startj - 1].is_there_a_red_frog == false) && (arr[starti + 2][startj - 2].is_there_a_red_frog == false)) {
                 return i_les_3_j_gr_1(starti, startj, arr);
-            }  else if ((starti > 1) && (startj > 1) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)
-                    && (arr[starti - 1][startj - 1].is_there_a_red_frog == false) && (arr[starti - 2][startj - 2].is_there_a_red_frog == false)) {
-                return i_gr_1_j_gr_1(starti, startj, arr);
-            }else if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 1][startj + 1].is_there_a_red_frog == false)
+            } else if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 1][startj + 1].is_there_a_red_frog == false)
                     && (arr[starti + 2][startj + 2].hasfrog == false) && (arr[starti + 2][startj + 2].is_there_a_red_frog == false)) {
                 return i_les_3_j_les_3(starti, startj, arr);
-            }  else return arr;
-        }
-
-        else if (startingi>1&&startingj<3){
+            } else if ((starti > 1) && (startj > 1) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)
+                    && (arr[starti - 1][startj - 1].is_there_a_red_frog == false) && (arr[starti - 2][startj - 2].is_there_a_red_frog == false)) {
+                return i_gr_1_j_gr_1(starti, startj, arr);
+            } else return arr;
+        } else if (startingi == 2 && startingj == 0) {
+            if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 1][startj + 1].is_there_a_red_frog == false)
+                    && (arr[starti + 2][startj + 2].hasfrog == false) && (arr[starti + 2][startj + 2].is_there_a_red_frog == false)) {
+                return i_les_3_j_les_3(starti, startj, arr);
+            } else if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)
+                    && (arr[starti - 1][startj + 1].is_there_a_red_frog == false) && (arr[starti - 2][startj + 2].is_there_a_red_frog == false)) {
+                return i_gr_1_j_les_3(starti, startj, arr);
+            } else if ((starti > 1) && (startj > 1) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)
+                    && (arr[starti - 1][startj - 1].is_there_a_red_frog == false) && (arr[starti - 2][startj - 2].is_there_a_red_frog == false)) {
+                return i_gr_1_j_gr_1(starti, startj, arr);
+            } else if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)
+                    && (arr[starti + 1][startj - 1].is_there_a_red_frog == false) && (arr[starti + 2][startj - 2].is_there_a_red_frog == false)) {
+                return i_les_3_j_gr_1(starti, startj, arr);
+            } else return arr;
+        } else if (startingi > 1 && startingj > 1) {
+            if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)
+                    && (arr[starti - 1][startj + 1].is_there_a_red_frog == false) && (arr[starti - 2][startj + 2].is_there_a_red_frog == false)) {
+                return i_gr_1_j_les_3(starti, startj, arr);
+            } else if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)
+                    && (arr[starti + 1][startj - 1].is_there_a_red_frog == false) && (arr[starti + 2][startj - 2].is_there_a_red_frog == false)) {
+                return i_les_3_j_gr_1(starti, startj, arr);
+            } else if ((starti > 1) && (startj > 1) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)
+                    && (arr[starti - 1][startj - 1].is_there_a_red_frog == false) && (arr[starti - 2][startj - 2].is_there_a_red_frog == false)) {
+                return i_gr_1_j_gr_1(starti, startj, arr);
+            } else if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 1][startj + 1].is_there_a_red_frog == false)
+                    && (arr[starti + 2][startj + 2].hasfrog == false) && (arr[starti + 2][startj + 2].is_there_a_red_frog == false)) {
+                return i_les_3_j_les_3(starti, startj, arr);
+            } else return arr;
+        } else if (startingi > 1 && startingj < 3) {
 
             if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)
                     && (arr[starti - 1][startj + 1].is_there_a_red_frog == false) && (arr[starti - 2][startj + 2].is_there_a_red_frog == false)) {
-                return  i_gr_1_j_les_3(starti,startj,arr);
+                return i_gr_1_j_les_3(starti, startj, arr);
             } else if ((starti > 1) && (startj > 1) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)
                     && (arr[starti - 1][startj - 1].is_there_a_red_frog == false) && (arr[starti - 2][startj - 2].is_there_a_red_frog == false)) {
-                return i_gr_1_j_gr_1(starti,startj,arr);
-            }else if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 1][startj + 1].is_there_a_red_frog == false)
+                return i_gr_1_j_gr_1(starti, startj, arr);
+            } else if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 1][startj + 1].is_there_a_red_frog == false)
                     && (arr[starti + 2][startj + 2].hasfrog == false) && (arr[starti + 2][startj + 2].is_there_a_red_frog == false)) {
-                return i_les_3_j_les_3(starti,startj,arr);
-            }else if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)
-                    && (arr[starti + 1][startj - 1].is_there_a_red_frog == false) && (arr[starti + 2][startj - 2].is_there_a_red_frog == false)) {
-                return   i_les_3_j_gr_1(starti,startj,arr);
-            } else return arr;
-        }
-        else if (startingi<3&&startingj<3){
-            if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 1][startj + 1].is_there_a_red_frog == false)
-                    && (arr[starti + 2][startj + 2].hasfrog == false) && (arr[starti + 2][startj + 2].is_there_a_red_frog == false)) {
-                return i_les_3_j_les_3(starti,startj,arr);
+                return i_les_3_j_les_3(starti, startj, arr);
             } else if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)
                     && (arr[starti + 1][startj - 1].is_there_a_red_frog == false) && (arr[starti + 2][startj - 2].is_there_a_red_frog == false)) {
-                return   i_les_3_j_gr_1(starti,startj,arr);
-            }else if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)
-                    && (arr[starti - 1][startj + 1].is_there_a_red_frog == false) && (arr[starti - 2][startj + 2].is_there_a_red_frog == false)) {
-                return  i_gr_1_j_les_3(starti,startj,arr);
-            }else if ((starti > 1) && (startj > 1) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)
-                    && (arr[starti - 1][startj - 1].is_there_a_red_frog == false) && (arr[starti - 2][startj - 2].is_there_a_red_frog == false)) {
-                return i_gr_1_j_gr_1(starti,startj,arr);
+                return i_les_3_j_gr_1(starti, startj, arr);
             } else return arr;
-        }
-
-        else {
+        } else if (startingi < 3 && startingj < 3) {
             if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 1][startj + 1].is_there_a_red_frog == false)
                     && (arr[starti + 2][startj + 2].hasfrog == false) && (arr[starti + 2][startj + 2].is_there_a_red_frog == false)) {
-                return i_les_3_j_les_3(starti,startj,arr);
-            }else if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)
-                    && (arr[starti - 1][startj + 1].is_there_a_red_frog == false) && (arr[starti - 2][startj + 2].is_there_a_red_frog == false)) {
-                return  i_gr_1_j_les_3(starti,startj,arr);
+                return i_les_3_j_les_3(starti, startj, arr);
             } else if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)
                     && (arr[starti + 1][startj - 1].is_there_a_red_frog == false) && (arr[starti + 2][startj - 2].is_there_a_red_frog == false)) {
-                return   i_les_3_j_gr_1(starti,startj,arr);
-            }else if ((starti > 1) && (startj > 1) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)
+                return i_les_3_j_gr_1(starti, startj, arr);
+            } else if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)
+                    && (arr[starti - 1][startj + 1].is_there_a_red_frog == false) && (arr[starti - 2][startj + 2].is_there_a_red_frog == false)) {
+                return i_gr_1_j_les_3(starti, startj, arr);
+            } else if ((starti > 1) && (startj > 1) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)
                     && (arr[starti - 1][startj - 1].is_there_a_red_frog == false) && (arr[starti - 2][startj - 2].is_there_a_red_frog == false)) {
-              return i_gr_1_j_gr_1(starti,startj,arr);
+                return i_gr_1_j_gr_1(starti, startj, arr);
+            } else return arr;
+        } else {
+            if ((starti < 3) && (startj < 3) && (arr[starti + 1][startj + 1].hasfrog == false) && (arr[starti + 1][startj + 1].is_there_a_red_frog == false)
+                    && (arr[starti + 2][startj + 2].hasfrog == false) && (arr[starti + 2][startj + 2].is_there_a_red_frog == false)) {
+                return i_les_3_j_les_3(starti, startj, arr);
+            } else if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)
+                    && (arr[starti - 1][startj + 1].is_there_a_red_frog == false) && (arr[starti - 2][startj + 2].is_there_a_red_frog == false)) {
+                return i_gr_1_j_les_3(starti, startj, arr);
+            } else if ((starti < 3) && (startj > 1) && (arr[starti + 1][startj - 1].hasfrog == false) && (arr[starti + 2][startj - 2].hasfrog == false)
+                    && (arr[starti + 1][startj - 1].is_there_a_red_frog == false) && (arr[starti + 2][startj - 2].is_there_a_red_frog == false)) {
+                return i_les_3_j_gr_1(starti, startj, arr);
+            } else if ((starti > 1) && (startj > 1) && (arr[starti - 1][startj - 1].hasfrog == false) && (arr[starti - 2][startj - 2].hasfrog == false)
+                    && (arr[starti - 1][startj - 1].is_there_a_red_frog == false) && (arr[starti - 2][startj - 2].is_there_a_red_frog == false)) {
+                return i_gr_1_j_gr_1(starti, startj, arr);
             } else return arr;
         }
     }
@@ -916,8 +904,7 @@ public class Pond extends View {
                             }
 
                             break outerloop;
-                        }
-                        else found = false;
+                        } else found = false;
                     }
                 }
             }
@@ -931,10 +918,63 @@ public class Pond extends View {
                 }
             }
 
+            if (found == true && moves.size() != points.size() - 1) {
+                boolean possible_turn = false;
+                outerloop:
+                for (int i = 0; i < 5; i++) {
+                    for (int j = 0; j < 5; j++) {
+                        if (liliPads[i][j] != null && (liliPads[i][j].hasfrog || liliPads[i][j].is_there_a_red_frog == true)) {
+                            if (i % 2 == 1) {
+                                if ((i > 1) && (j < 3) && (liliPads[i - 1][j + 1].hasfrog == true) && (liliPads[i - 2][j + 2].hasfrog == false)
+                                        && (liliPads[i - 1][j + 1].is_there_a_red_frog == false) && (liliPads[i - 2][j + 2].is_there_a_red_frog == false)) {
+                                    possible_turn = true;
+                                } else if ((i < 3) && (j > 1) && (liliPads[i + 1][j - 1].hasfrog == true) && (liliPads[i + 2][j - 2].hasfrog == false)
+                                        && (liliPads[i + 1][j - 1].is_there_a_red_frog == false) && (liliPads[i + 2][j - 2].is_there_a_red_frog == false)) {
+                                    possible_turn = true;
+                                } else if ((i < 3) && (j < 3) && (liliPads[i + 1][j + 1].hasfrog == true) && (liliPads[i + 1][j + 1].is_there_a_red_frog == false)
+                                        && (liliPads[i + 2][j + 2].hasfrog == false) && (liliPads[i + 2][j + 2].is_there_a_red_frog == false)) {
+                                    possible_turn = true;
+                                } else if ((i > 1) && (j > 1) && (liliPads[i - 1][j - 1].hasfrog == true) && (liliPads[i - 2][j - 2].hasfrog == false)
+                                        && (liliPads[i - 1][j - 1].is_there_a_red_frog == false) && (liliPads[i - 2][j - 2].is_there_a_red_frog == false)) {
+                                    possible_turn = true;
+                                }
+                            } else {
+                                if ((j == 0) && (liliPads[i][j + 4].hasfrog == false) && (liliPads[i][j + 2].hasfrog == true)
+                                        && (liliPads[i][j + 4].is_there_a_red_frog == false) && (liliPads[i][j + 2].is_there_a_red_frog == false)) {
+                                    possible_turn = true;
+                                } else if ((i == 0) && (liliPads[i + 2][j].hasfrog == true) && (liliPads[i + 4][j].hasfrog == false)
+                                        && (liliPads[i + 2][j].is_there_a_red_frog == false) && (liliPads[i + 4][j].is_there_a_red_frog == false)) {
+                                    possible_turn = true;
+                                } else if ((i == 4) && (liliPads[i - 2][j].hasfrog == true) && (liliPads[i - 4][j].hasfrog == false)
+                                        && (liliPads[i - 2][j].is_there_a_red_frog == false) && (liliPads[i - 4][j].is_there_a_red_frog == false)) {
+                                    possible_turn = true;
+                                } else if ((j == 4) && (liliPads[i][j - 4].hasfrog == false) && (liliPads[i][j - 2].hasfrog == true)
+                                        && (liliPads[i][j - 4].is_there_a_red_frog == false) && (liliPads[i][j - 2].is_there_a_red_frog == false)) {
+                                    possible_turn = true;
+                                }
+                                //could be parted into functions
+                                if ((i > 1) && (j < 3) && (liliPads[i - 1][j + 1].hasfrog == true) && (liliPads[i - 2][j + 2].hasfrog == false)
+                                        && (liliPads[i - 1][j + 1].is_there_a_red_frog == false) && (liliPads[i - 2][j + 2].is_there_a_red_frog == false)) {
+                                    possible_turn = true;
+                                } else if ((i < 3) && (j > 1) && (liliPads[i + 1][j - 1].hasfrog == true) && (liliPads[i + 2][j - 2].hasfrog == false)
+                                        && (liliPads[i + 1][j - 1].is_there_a_red_frog == false) && (liliPads[i + 2][j - 2].is_there_a_red_frog == false)) {
+                                    possible_turn = true;
+                                } else if ((i < 3) && (j < 3) && (liliPads[i + 1][j + 1].hasfrog == true) && (liliPads[i + 1][j + 1].is_there_a_red_frog == false)
+                                        && (liliPads[i + 2][j + 2].hasfrog == false) && (liliPads[i + 2][j + 2].is_there_a_red_frog == false)) {
+                                    possible_turn = true;
+                                } else if ((i > 1) && (j > 1) && (liliPads[i - 1][j - 1].hasfrog == true) && (liliPads[i - 2][j - 2].hasfrog == false)
+                                        && (liliPads[i - 1][j - 1].is_there_a_red_frog == false) && (liliPads[i - 2][j - 2].is_there_a_red_frog == false)) {
+                                    possible_turn = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (possible_turn == false) Toast.makeText(getContext(),"No possible turns",Toast.LENGTH_SHORT).show();
+            }
             draggedfrog = null;
             return true;
         }
         return super.onTouchEvent(event);
     }
-
 }

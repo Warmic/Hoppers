@@ -5,16 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#4DE5F0"
-    android:paddingTop = "25dp"
-    android:paddingLeft="20dp">
+    android:padding="15dp">
     <!--android:background="@drawable/pondbackground"-->
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#00CC00"
+        android:textSize="43sp"
+        android:text="Choose difficulty"/>
 
     <LinearLayout
 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="45dp">
+        android:layout_marginTop="60dp">
 
         <Button
             android:layout_width="95dp"

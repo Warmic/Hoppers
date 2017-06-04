@@ -16,9 +16,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Peter on 01.05.2017.
- */
+
 
 public class Set_of_Story_Difficulties extends Activity {
 
