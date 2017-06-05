@@ -71,7 +71,7 @@
                     android:layout_weight="1"
                     android:tag="notrand"
                     android:onClick="onRadioButtonClick"
-                    android:text="OurAmount" />
+                    android:text="YourMaps" />
 
                 <RadioButton
                     android:id="@+id/radioButton4"
@@ -80,7 +80,7 @@
                     android:layout_weight="1"
                     android:tag="rand"
                     android:onClick="onRadioButtonClick"
-                    android:text="RandomAmount" />
+                    android:text="RandomMaps" />
 
             </RadioGroup>
 

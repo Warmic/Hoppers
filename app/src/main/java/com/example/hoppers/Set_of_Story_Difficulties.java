@@ -39,6 +39,8 @@ public class Set_of_Story_Difficulties extends Activity {
 
         SQLiteDatabase db = dbh.getReadableDatabase();
 
+        dbh.create_difficulties(db);
+
 
         for (int i = 4; i <= 11; i++) {
 

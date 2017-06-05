@@ -51,7 +51,6 @@ public class OnlineGame extends Activity {
     String [] levels = new String[] {"0","4","5","6","7","8","9","10","11"};
     String [] levels_extra = new String[] {"0","1","2","3","4","5"};
     String msg = "";
-    String nickname;
 
     int [] arr = new int [5];
     int amount_random_levels = 0;
@@ -93,7 +92,6 @@ public class OnlineGame extends Activity {
         if (cursor.moveToFirst()) {
                 do {
                     String expected_nickname = cursor.getString(cursor.getColumnIndex(DatabaseHandler.NICKNAME));
-                    Log.d("cur", expected_nickname + " XD");
 
                     if (expected_nickname.equals("") == false) {
                         name.setText("Logged as : " + expected_nickname);
@@ -122,51 +120,67 @@ public class OnlineGame extends Activity {
             delete_name.setVisibility(View.VISIBLE);
             search_layout.setVisibility(View.VISIBLE);
             setup_layout.setVisibility(View.VISIBLE);
+
+            getGamesRequest();
         }
 
         new_name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               if (setname.getText().toString().equals("")==false){
-                   JSONObject jsononbject = new JSONObject();
-                   try {
-                       jsononbject.put("action","register");
-                       jsononbject.put("nickname",setname.getText().toString());
-                   } catch (JSONException e) {
-                       e.printStackTrace();
-                   }
-                   new Get_JSON_Reply_class().execute(jsononbject.toString());
-               }
+                if (isNetworkAvailable()==true) {
+                    if (setname.getText().toString().equals("") == false) {
+                        JSONObject jsononbject = new JSONObject();
+                        try {
+                            jsononbject.put("action", "register");
+                            jsononbject.put("nickname", setname.getText().toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        new Get_JSON_Reply_class().execute(jsononbject.toString());
+                    }
+                }
+                else {
+                    Toast.makeText(getBaseContext(),"Check Your Network Connection",Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
 
         find_opponent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                JSONObject jsonobject = new JSONObject();
-                try{
-                    jsonobject.put("action","find_opponent");
-                    jsonobject.put("token",token);
-                    if (amount_random_levels!=0){
-                        jsonobject.put("random",true);
-                        jsonobject.put("amount",amount_random_levels);
-                    }
-                    else{
-                        jsonobject.put("random",false);
-                        jsonobject.put("amount",amount_not_random_levels);
-                        jsonobject.put("difficulties", Arrays.toString(arr));
+            if (isNetworkAvailable()==true) {
+
+                if (amount_not_random_levels != 0 || amount_random_levels != 0) {
+                        JSONObject jsonobject = new JSONObject();
+                        try {
+                            jsonobject.put("action", "find_opponent");
+                            jsonobject.put("token", token);
+                            jsonobject.put("nickname",name.toString());
+                            if (amount_random_levels != 0) {
+                                jsonobject.put("random", true);
+                                jsonobject.put("amount", amount_random_levels);
+                            } else if (amount_not_random_levels != 0) {
+                                jsonobject.put("random", false);
+                                jsonobject.put("amount", amount_not_random_levels);
+                                jsonobject.put("difficulties", Arrays.toString(arr));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        new Get_JSON_Reply_class().execute(jsonobject.toString());
                     }
                 }
-                catch (JSONException e){
-                    e.printStackTrace();
+                else {
+                    Toast.makeText(getBaseContext(),"Check Your Network Connection",Toast.LENGTH_SHORT).show();
                 }
-                new Get_JSON_Reply_class().execute(jsonobject.toString());
             }
         });
     }
 
 
     public void onRadioButtonClick(View v) {
+
         LinearLayout spinners_layout = (LinearLayout) findViewById(R.id.spinners_layout);
         msg = v.getTag().toString();
         spinners_layout.setVisibility(View.VISIBLE);
@@ -272,7 +286,6 @@ public class OnlineGame extends Activity {
                 if (in.hasNext()) {
                     completeReply = in.nextLine();
                 }
-
                 urlConnection.disconnect();
 
                 return completeReply;
@@ -296,8 +309,25 @@ public class OnlineGame extends Activity {
                     JSONObject Jrequest = new JSONObject(request);
                     JSONObject Jresponse = new JSONObject(s);
 
-                    if (Jrequest.getString("action").equals("find_opponent") && Jresponse.getString("status").equals("error") == false) {
+                    if (Jrequest.getString("action").equals("getGame")){
 
+                        if (Jresponse.getString("status").equals("error")==false){
+                         //SUCCESS
+                            DatabaseHandler dbh = new DatabaseHandler(getBaseContext());
+                            dbh.upgrade_online_profile(dbh.getWritableDatabase());
+                            dbh.close();
+
+                            Toast.makeText(getBaseContext(), "Successful search of an opponent ", Toast.LENGTH_LONG).show();
+
+                            Intent intent = new Intent(getBaseContext(), OnlineGame_Set_of_Levels.class);
+                            intent.putExtra("Level", Jresponse.getString("map"));
+                            intent.putExtra("enemy_token",Jresponse.getInt("enemy_token"));
+                            startActivity(intent);
+                        }
+                        else {Toast.makeText(getBaseContext(),"No opponent yet",Toast.LENGTH_SHORT).show();}
+                    } else
+
+                    if (Jrequest.getString("action").equals("find_opponent") && Jresponse.getString("status").equals("error") == false) {
 
                         DatabaseHandler dbh = new DatabaseHandler(getBaseContext());
                         dbh.upgrade_online_profile(dbh.getWritableDatabase());
@@ -307,10 +337,9 @@ public class OnlineGame extends Activity {
 
                         Intent intent = new Intent(getBaseContext(), OnlineGame_Set_of_Levels.class);
                         intent.putExtra("Level", Jresponse.getString("map"));
+                        intent.putExtra("enemy_token",Jresponse.getInt("enemy_token"));
                         startActivity(intent);
-
                     }
-
                     if (Jrequest.getString("action").equals("register")) {
 
                         if (Jresponse.getString("status").equals("error") == false ) {
@@ -319,7 +348,6 @@ public class OnlineGame extends Activity {
 
                             registered = true;
                             token = Jresponse.getInt("token");
-
                             name.setText("Logged as : "+setname.getText().toString());
 
                             DatabaseHandler dbh = new DatabaseHandler(getBaseContext());
@@ -327,24 +355,9 @@ public class OnlineGame extends Activity {
                             SQLiteDatabase db = dbh.getWritableDatabase();
 
                             String insertQuery = "REPLACE INTO " + DatabaseHandler.TABLE_PLAYER_PROFILE+ "(" + DatabaseHandler.NICKNAME+ ","
-                                    + DatabaseHandler.TOKEN+ ")" + " VALUES ('"+setname.getText().toString()+"',"+token+")";
+                                    + DatabaseHandler.TOKEN+ ",count)" + " VALUES ('"+setname.getText().toString()+"',"+token+",0)";
 
                             db.execSQL(insertQuery);
-
-
-                            String selectQuery = "SELECT  * FROM " + DatabaseHandler.TABLE_PLAYER_PROFILE ;
-
-                            Cursor cursor = db.rawQuery(selectQuery, null);
-
-                            if (cursor.moveToFirst()) {
-                                do {
-                                    String expected_nickname = cursor.getString(cursor.getColumnIndex(DatabaseHandler.NICKNAME));
-                                    Log.d("cur", cursor.getString(cursor.getColumnIndex(DatabaseHandler.TOKEN)) + " XDS");
-                                } while (cursor.moveToNext());
-                            }
-
-                            cursor.close();
-
                             db.close();
                             dbh.close();
 
@@ -355,7 +368,6 @@ public class OnlineGame extends Activity {
                             name.setVisibility(View.VISIBLE);
                             search_layout.setVisibility(View.VISIBLE);
                             setup_layout.setVisibility(View.VISIBLE);
-
 
                         } else
                             Toast.makeText(getBaseContext(), "Name already exists", Toast.LENGTH_SHORT).show();
@@ -383,25 +395,11 @@ public class OnlineGame extends Activity {
 
         DatabaseHandler dbh = new DatabaseHandler(getBaseContext());
         SQLiteDatabase db = dbh.getWritableDatabase();
-
+        dbh.upgrade_player_profile(db);
 
         String insertQuery = "REPLACE INTO " + DatabaseHandler.TABLE_PLAYER_PROFILE+ "(" + DatabaseHandler.NICKNAME+ ","
-                + DatabaseHandler.TOKEN+ ")" + " VALUES ('',0)";
-
+                + DatabaseHandler.TOKEN+ ",count)" + " VALUES ('',0,0)";
         db.execSQL(insertQuery);
-
-        String selectQuery = "SELECT  * FROM " + DatabaseHandler.TABLE_PLAYER_PROFILE ;
-
-        Cursor cursor = db.rawQuery(selectQuery, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                String expected_nickname = cursor.getString(cursor.getColumnIndex(DatabaseHandler.NICKNAME));
-                Log.d("cur", cursor.getString(cursor.getColumnIndex(DatabaseHandler.TOKEN)) + " XDS");
-            } while (cursor.moveToNext());
-        }
-
-        cursor.close();
 
         db.close();
         dbh.close();
@@ -427,4 +425,22 @@ public class OnlineGame extends Activity {
         startActivity(intent);
     }
 
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private void getGamesRequest() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("token", token);
+            jsonObject.put("action", "getGame");
+            new Get_JSON_Reply_class().execute(jsonObject.toString());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }

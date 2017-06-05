@@ -87,6 +87,29 @@ public class ChosenLevel extends Activity {
 
     }
 
+
+    @Override
+    public void onBackPressed() {
+        Log.d("CDA", "onBackPressed Called");
+        if (getIntent().getStringExtra("IsStory")!=null) {
+            Intent setIntent = new Intent(getBaseContext(),Set_of_Story_Levels.class);
+            setIntent.putExtra("Total",getIntent().getIntExtra("Total",0));
+            setIntent.putExtra("Level",getIntent().getIntExtra("Level",0));
+            startActivity(setIntent);
+        }
+        else if (getIntent().getStringExtra("Random")!=null) {
+            Intent setIntent = new Intent(getBaseContext(),Set_of_Random_Levels.class);
+            setIntent.putExtra("Random","random");
+            startActivity(setIntent);
+        }
+        else if (getIntent().getStringExtra("IsOnline")!=null){
+            Intent setintent = new Intent(getBaseContext(),OnlineGame_Set_of_Levels.class);
+            startActivity(setintent);
+        }
+
+    }
+
+
     public String GetLevelFromAssets(String tag){
 
         ArrayList<String> list = new ArrayList();
@@ -109,29 +132,6 @@ public class ChosenLevel extends Activity {
             if ((a.substring(0,2)).equals(tag)) return a.substring(2,a.length());
         }
         return null;
-    }
-
-
-
-    @Override
-    public void onBackPressed() {
-        Log.d("CDA", "onBackPressed Called");
-        if (getIntent().getStringExtra("IsStory")!=null) {
-            Intent setIntent = new Intent(getBaseContext(),Set_of_Story_Levels.class);
-            setIntent.putExtra("Total",getIntent().getIntExtra("Total",0));
-            setIntent.putExtra("Level",getIntent().getIntExtra("Level",0));
-            startActivity(setIntent);
-        }
-        else if (getIntent().getStringExtra("Random")!=null) {
-            Intent setIntent = new Intent(getBaseContext(),Set_of_Random_Levels.class);
-            setIntent.putExtra("Random","random");
-            startActivity(setIntent);
-        }
-        else if (getIntent().getStringExtra("IsOnline")!=null){
-            Intent setintent = new Intent(getBaseContext(),OnlineGame_Set_of_Levels.class);
-            startActivity(setintent);
-        }
-
     }
 
 }

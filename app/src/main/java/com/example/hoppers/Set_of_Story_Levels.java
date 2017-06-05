@@ -23,12 +23,15 @@ import java.util.List;
 
 public class Set_of_Story_Levels extends Activity {
 
+    ArrayList<Integer> iviewsids;
+    List<Integer> buttonids;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.set_of_story_levels);
 
-        List<Integer> buttonids = new ArrayList(){};
+        buttonids = new ArrayList(){};
 
         buttonids.add(R.id._1);
         buttonids.add(R.id._2);
@@ -47,7 +50,7 @@ public class Set_of_Story_Levels extends Activity {
             }
         }
 
-        ArrayList<Integer> iviewsids = new ArrayList<>();
+        iviewsids = new ArrayList<>();
 
         iviewsids.add(R.id._iv1);
         iviewsids.add(R.id._iv2);

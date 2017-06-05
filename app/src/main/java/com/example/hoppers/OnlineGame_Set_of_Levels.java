@@ -5,11 +5,11 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +21,8 @@ import java.util.List;
 public class OnlineGame_Set_of_Levels extends Activity {
 
     ArrayList<String> list_recieved_levels;
+    ArrayList<Integer> iviewsids;
+    ArrayList<Integer> data;
     List<Integer> buttonids;
     String recieved_level;
     int enemy_token;
@@ -30,6 +32,7 @@ public class OnlineGame_Set_of_Levels extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.online_game_levels_layout);
 
+        data = new ArrayList<>();
         buttonids = new ArrayList(){};
         list_recieved_levels = new ArrayList();
 
@@ -38,6 +41,14 @@ public class OnlineGame_Set_of_Levels extends Activity {
         buttonids.add(R.id._3);
         buttonids.add(R.id._4);
         buttonids.add(R.id._5);
+
+        iviewsids = new ArrayList<>();
+
+        iviewsids.add(R.id._iv1);
+        iviewsids.add(R.id._iv2);
+        iviewsids.add(R.id._iv3);
+        iviewsids.add(R.id._iv4);
+        iviewsids.add(R.id._iv5);
 
 
         DatabaseHandler dbh = new DatabaseHandler(this);
@@ -50,12 +61,10 @@ public class OnlineGame_Set_of_Levels extends Activity {
             dbh.create_online_profile(db);
             db = dbh.getWritableDatabase();
 
-            Log.d("lev", recieved.getStringExtra("Levels") + " lev");
-
             if (recieved.getStringExtra("Level") != null) {
                 recieved_level = recieved.getStringExtra("Level");
                 int pos = 0;
-                Log.d("lev", recieved_level);
+
                 for (int i = 0; i < recieved_level.length(); i++) {
 
                     if (recieved_level.charAt(i) == ',') {
@@ -89,10 +98,10 @@ public class OnlineGame_Set_of_Levels extends Activity {
 
                 if (cursor.moveToFirst()) {
                     do {
+
                         list_recieved_levels.add(cursor.getString(cursor.getColumnIndex("map")));
 
-                        if (cursor.getInt(cursor.getColumnIndex("completed")) ==1) {}
-                        //Mark level as completed
+                        data.add(cursor.getInt(cursor.getColumnIndex("completed")));
 
                     } while (cursor.moveToNext());
                 }
@@ -107,9 +116,21 @@ public class OnlineGame_Set_of_Levels extends Activity {
             button.setVisibility(View.INVISIBLE);
         }
 
-        if (recieved.getIntExtra("token",0)!=0) enemy_token = recieved.getIntExtra("token",0);
-    }
+        for (int i = 0; i < data.size(); i++) {
 
+            Integer integ = data.get(i);
+
+            if (integ == 1) {
+                ImageView image = (ImageView) findViewById(iviewsids.get(i));
+                image.setVisibility(View.VISIBLE);
+            }
+        }
+
+        if (recieved.getIntExtra("token",0)!=0) enemy_token = recieved.getIntExtra("token",0);
+
+        db.close();
+        dbh.close();
+    }
 
     @Override
     public void onBackPressed() {

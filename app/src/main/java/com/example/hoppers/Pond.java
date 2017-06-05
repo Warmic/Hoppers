@@ -35,7 +35,7 @@ public class Pond extends View {
     private int diffx;
     private int diffy;
     public int amountoffrogs;
-    public final int rad = 80;
+    public  int rad;
     public int current;
     public int total;
     private int startingi;
@@ -135,6 +135,8 @@ public class Pond extends View {
                 frogmap = Bitmap.createScaledBitmap(frogmap, width, height, true);
                 redmap = Bitmap.createScaledBitmap(redmap, width, height, true);
                 background = Bitmap.createScaledBitmap(background, diffx * 6, diffy * 6, true);
+                rad = canvas.getHeight()/9;
+
             }
         }
 
@@ -251,7 +253,7 @@ public class Pond extends View {
                                     Intent intent = new Intent(getContext(), ChosenLevel.class);
                                     intent.putExtra("Map", nextmap);
                                     intent.putExtra("IsOnline", "xd");
-                                    intent.putExtra("Current", current + 1 + "");
+                                    intent.putExtra("Current",current + 1);
                                     intent.putExtra("Level", Integer.parseInt(nextmap.substring(0, 2)));
                                     intent.putExtra("Total", total);
 
@@ -271,7 +273,6 @@ public class Pond extends View {
                 }
             }
             if (story) {
-
                 if (current < total) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                     builder.setMessage("Congratulations! \n Next level?")
@@ -281,10 +282,9 @@ public class Pond extends View {
                                     Intent intent = new Intent(getContext(), ChosenLevel.class);
                                     intent.putExtra("Map", nextmap);
                                     intent.putExtra("IsStory", "xd");
-                                    intent.putExtra("Current", current + 1 + "");
+                                    intent.putExtra("Current", current + 1);
                                     intent.putExtra("Level", points.size());
                                     intent.putExtra("Total", total);
-
                                     getContext().startActivity(intent);
                                 }
                             })
@@ -302,7 +302,6 @@ public class Pond extends View {
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     Intent intent = new Intent(getContext(), Set_of_Story_Difficulties.class);
-
                                     getContext().startActivity(intent);
                                 }
                             })
@@ -324,14 +323,11 @@ public class Pond extends View {
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Intent intent = new Intent(getContext(), ChosenLevel.class);
-
                                 intent.putExtra("Random", "rand");
                                 intent.putExtra("Level", points.size());
-
                                 getContext().startActivity(intent);
                             }
                         })
-
                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
