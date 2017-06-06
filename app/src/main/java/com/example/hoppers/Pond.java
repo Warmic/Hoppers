@@ -81,7 +81,7 @@ public class Pond extends View {
             points.clear();
 
             int count = -1;
-
+        //setting up an empty field
             for (int i = 0; i < 5; i++) {
                 for (int j = 0; j < 5; j++) {
                     count++;
@@ -92,6 +92,7 @@ public class Pond extends View {
             }
 
             if (setupcomplete == false) Pond.this.setup(liliPads);
+        //getting map out of string
             else if (map != null) {
                 for (int i = 0; i < map.length(); i += 5) {
                     int x = map.charAt(i) - 48;
@@ -115,7 +116,7 @@ public class Pond extends View {
 
             }
         }
-
+        //scaling bitmaps properly
         if (drawn == false) {
 
             drawn = true;
@@ -144,7 +145,7 @@ public class Pond extends View {
 
         paint.setStrokeWidth(6);
         paint.setColor(Color.BLACK);
-
+        //drawing lines
         for (int i = 0; i < 5; i++) {
 
             for (int j = 0; j < 5; j++) {
@@ -183,6 +184,7 @@ public class Pond extends View {
 
         }
 
+        //drawing bitmaps
         for (int i = 0; i < 5; i++) {
 
             for (int j = 0; j < 5; j++) {
@@ -214,6 +216,7 @@ public class Pond extends View {
 
 
         if (moves.size() == points.size() - 1) {
+            //checking if level has been finished
             levelfinished = true;
             if (current > 0 && story) {
 
@@ -267,9 +270,6 @@ public class Pond extends View {
                             });
                     AlertDialog alert = builder.create();
                     alert.show();
-                }
-                //TODO HANDLE A SITUATION WHERE YOU HAVE FINISHED LAST LEVEL
-                else {
                 }
             }
             if (story) {
@@ -364,16 +364,16 @@ public class Pond extends View {
             startj = rand.nextInt(5);
         }
 
-        Log.d("STES", starti + " " + startj + "\n");
-
         points.add(new Point(starti, startj));
         startingi = starti;
         startingj = startj;
 
         arr[starti][startj].is_there_a_red_frog = true;
+        //adding a first point
 
         outerloop:
         while (points.size() != amountoffrogs) {
+            //running function as long as we don't get requested amount of frogs
 
             int size = points.size();
 
@@ -416,7 +416,6 @@ public class Pond extends View {
                     starti = rand.nextInt(5);
                     startj = rand.nextInt(5);
                 }
-                Log.d("STES", starti + " " + startj);
 
                 points.add(new Point(starti, startj));
                 startingi = starti;
@@ -427,7 +426,7 @@ public class Pond extends View {
 
         }
 
-
+        //writing an entire level in a string
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
 
@@ -441,7 +440,6 @@ public class Pond extends View {
             }
         }
 
-        Log.d("LEV", thislevel);
         setupcomplete = true;
     }
 
@@ -522,8 +520,10 @@ public class Pond extends View {
 
     public LiliPads[][] check_if_i_2(int starti, int startj, LiliPads arr[][]) {
 
+
+        //some starting points require a certain order of functions in order to construct a level
+
         if (
-            //startingi==4 && startingj==2 || startingi==3 && startingj==1 ||
                 startingi == 1 && startingj == 1) {
             if ((startj == 0) && (arr[starti][startj + 4].hasfrog == false) && (arr[starti][startj + 2].hasfrog == false)
                     && (arr[starti][startj + 4].is_there_a_red_frog == false) && (arr[starti][startj + 2].is_there_a_red_frog == false)) {
@@ -663,6 +663,8 @@ public class Pond extends View {
 
     public LiliPads[][] check_if_i_1(int starti, int startj, LiliPads arr[][]) {
 
+        //some starting points require a certain order of functions in order to construct a level
+
         if (startingi == 4 && startingj == 2) {
 
             if ((starti > 1) && (startj < 3) && (arr[starti - 1][startj + 1].hasfrog == false) && (arr[starti - 2][startj + 2].hasfrog == false)
@@ -769,6 +771,7 @@ public class Pond extends View {
             outerloop:
             for (int i = 0; i < 5; i++) {
                 for (int j = 0; j < 5; j++) {
+            //checking if a touch landed on an existing frog,and if so then which one:green or red
 
                     if ((liliPads[i][j] != null) && (Math.sqrt(Math.pow(liliPads[i][j].x - x, 2) + Math.pow(liliPads[i][j].y - y, 2)) <= rad)
                             && ((liliPads[i][j].hasfrog == true) || (liliPads[i][j].is_there_a_red_frog == true))) {
@@ -791,7 +794,7 @@ public class Pond extends View {
             return true;
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
             if (drag == true) {
-
+                //dragging a frog along screen
                 if (dragfrog == false) {
                     draggedfrog = new LiliPads(x, y, true, false);
                 } else {
@@ -805,6 +808,7 @@ public class Pond extends View {
             outerloop:
             for (int i = 0; i < 5; i++) {
                 for (int j = 0; j < 5; j++) {
+                    //checking if this turn is allowed
                     if ((liliPads[i][j] != null) && (Math.pow(liliPads[i][j].x - x, 2) + Math.pow(liliPads[i][j].y - y, 2) < Math.pow(rad, 2))
                             && (liliPads[i][j].hasfrog == false) && (liliPads[i][j].is_there_a_red_frog == false) && (draggedfrog != null)) {
                         found = true;
@@ -905,6 +909,7 @@ public class Pond extends View {
                 }
             }
 
+            //if turn is for some reason not allowed/possible
             if (found == false && startx != -1 && starty != -1) {
                 if (dragfrog == false)
                     liliPads[startx][starty].hasfrog = true;
@@ -913,7 +918,7 @@ public class Pond extends View {
                     dragfrog = false;
                 }
             }
-
+            //if turn is allowed,then seeing if there are any possible turns with a current setup
             if (found == true && moves.size() != points.size() - 1) {
                 boolean possible_turn = false;
                 outerloop:

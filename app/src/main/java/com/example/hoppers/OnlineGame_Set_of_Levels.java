@@ -1,18 +1,36 @@
 package com.example.hoppers;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by Peter on 18.05.2017.
@@ -26,11 +44,35 @@ public class OnlineGame_Set_of_Levels extends Activity {
     List<Integer> buttonids;
     String recieved_level;
     int enemy_token;
+    Timer t;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.online_game_levels_layout);
+
+        t = new Timer();
+        t.schedule(new TimerTask() {
+
+            public void run() {
+
+                if (isNetworkAvailable()==true) {
+
+                        JSONObject jsononbject = new JSONObject();
+                        try {
+                            jsononbject.put("action", "game_state");
+                            jsononbject.put("token",enemy_token);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        new Get_JSON_Reply_class().execute(jsononbject.toString());
+                }
+                else {
+                    Toast.makeText(getBaseContext(),"Check Your Network Connection",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        }, 1000);
 
         data = new ArrayList<>();
         buttonids = new ArrayList(){};
@@ -161,4 +203,79 @@ public class OnlineGame_Set_of_Levels extends Activity {
             startActivity(intent);
         }
     }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+public class Get_JSON_Reply_class extends AsyncTask<String,Void,String> {
+
+    String request;
+
+    @Override
+    protected String doInBackground(String... params) {
+
+        try {
+            request = params[0];
+
+            String set_server_url = "http://194.176.114.21:8080";
+
+            URL url = new URL(set_server_url);
+
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+            urlConnection.setDoOutput(true);
+
+            OutputStream out = urlConnection.getOutputStream();
+
+            out.write(params[0].getBytes());
+
+            Scanner in = new Scanner(urlConnection.getInputStream());
+            String completeReply = "";
+            if (in.hasNext()) {
+                completeReply = in.nextLine();
+            }
+            urlConnection.disconnect();
+
+            return completeReply;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    @Override
+    protected void onPostExecute(String s) {
+
+        if (request != null && s.equals("") == false) {
+
+            try {
+                JSONObject Jrequest = new JSONObject(request);
+                JSONObject Jresponse = new JSONObject(s);
+
+                if (Jrequest.getString("action").equals("game_state")){
+
+                    if (Jresponse.getString("status").equals("error")==false){
+
+                        JSONArray arr = Jresponse.getJSONArray("maps");
+                        String res = "Your opponent has already finished:";
+                        for (int i = 0; i < arr.length(); i++) {
+                            if ((boolean)arr.get(i)==true) {res+=(i+1)+" ";}
+                        }
+                     if (res.equals("Your opponent has already finished:")==false)
+                         Toast.makeText(getBaseContext(), res+" maps", Toast.LENGTH_LONG).show();
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+}
 }

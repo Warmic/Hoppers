@@ -41,7 +41,7 @@ public class Set_of_Story_Difficulties extends Activity {
 
         dbh.create_difficulties(db);
 
-
+        //marking levels that have already been completed
         for (int i = 4; i <= 11; i++) {
 
             String selectQuery = "SELECT  * FROM " + DatabaseHandler.TABLE_DIFFICULTIES + " where "+DatabaseHandler.DIFFICULTY +" = " + i;
@@ -65,6 +65,8 @@ public class Set_of_Story_Difficulties extends Activity {
         db.close();
         dbh.close();
 
+
+        //making ListView fit screen in a better way
 
         DisplayMetrics displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);

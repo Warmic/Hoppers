@@ -59,6 +59,8 @@ public class OnlineGame extends Activity {
     int count = 0;
     boolean registered;
 
+    // THE ENTIRE BRANCH HAS NOT BEEN FINISHED YET
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,8 +122,6 @@ public class OnlineGame extends Activity {
             delete_name.setVisibility(View.VISIBLE);
             search_layout.setVisibility(View.VISIBLE);
             setup_layout.setVisibility(View.VISIBLE);
-
-            getGamesRequest();
         }
 
         new_name.setOnClickListener(new View.OnClickListener() {
@@ -150,7 +150,7 @@ public class OnlineGame extends Activity {
             @Override
             public void onClick(View v) {
             if (isNetworkAvailable()==true) {
-
+                /*
                 if (amount_not_random_levels != 0 || amount_random_levels != 0) {
                         JSONObject jsonobject = new JSONObject();
                         try {
@@ -170,7 +170,9 @@ public class OnlineGame extends Activity {
                         }
                         new Get_JSON_Reply_class().execute(jsonobject.toString());
                     }
-                }
+                    */
+                Toast.makeText(getBaseContext(),"Sorry,but this hasn't been finished yet",Toast.LENGTH_SHORT).show();
+            }
                 else {
                     Toast.makeText(getBaseContext(),"Check Your Network Connection",Toast.LENGTH_SHORT).show();
                 }
@@ -217,8 +219,8 @@ public class OnlineGame extends Activity {
                             }
 
                             amount_not_random_levels = count;
+
                             //arr - difficulties that will be sent
-                            Toast.makeText(getBaseContext(), "count " + count, Toast.LENGTH_SHORT).show();
 
                     }
 
@@ -254,7 +256,6 @@ public class OnlineGame extends Activity {
 
                 }
             });
-            Toast.makeText(getBaseContext(), "amount " + amount_random_levels, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -269,7 +270,7 @@ public class OnlineGame extends Activity {
             try {
                 request = params[0];
 
-                String set_server_url = "http://91.242.182.235:8080";
+                String set_server_url = "http://194.176.114.21:8080";
 
                 URL url = new URL(set_server_url);
 
@@ -300,32 +301,12 @@ public class OnlineGame extends Activity {
         @Override
         protected void onPostExecute(String s) {
 
-            Toast.makeText(getBaseContext(), s, Toast.LENGTH_SHORT).show();
-
             if (request != null && s.equals("") == false) {
 
                 try {
 
                     JSONObject Jrequest = new JSONObject(request);
                     JSONObject Jresponse = new JSONObject(s);
-
-                    if (Jrequest.getString("action").equals("getGame")){
-
-                        if (Jresponse.getString("status").equals("error")==false){
-                         //SUCCESS
-                            DatabaseHandler dbh = new DatabaseHandler(getBaseContext());
-                            dbh.upgrade_online_profile(dbh.getWritableDatabase());
-                            dbh.close();
-
-                            Toast.makeText(getBaseContext(), "Successful search of an opponent ", Toast.LENGTH_LONG).show();
-
-                            Intent intent = new Intent(getBaseContext(), OnlineGame_Set_of_Levels.class);
-                            intent.putExtra("Level", Jresponse.getString("map"));
-                            intent.putExtra("enemy_token",Jresponse.getInt("enemy_token"));
-                            startActivity(intent);
-                        }
-                        else {Toast.makeText(getBaseContext(),"No opponent yet",Toast.LENGTH_SHORT).show();}
-                    } else
 
                     if (Jrequest.getString("action").equals("find_opponent") && Jresponse.getString("status").equals("error") == false) {
 
@@ -372,13 +353,10 @@ public class OnlineGame extends Activity {
                         } else
                             Toast.makeText(getBaseContext(), "Name already exists", Toast.LENGTH_SHORT).show();
                     }
-
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-
         }
     }
 
@@ -406,7 +384,6 @@ public class OnlineGame extends Activity {
     }
 
     public void disconnectRequest(){
-
             JSONObject jsonObject = new JSONObject();
             try {
                 jsonObject.put("action","disconnect");
@@ -415,13 +392,11 @@ public class OnlineGame extends Activity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
     }
 
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(getBaseContext(),MainActivity.class);
-
         startActivity(intent);
     }
 
@@ -432,15 +407,4 @@ public class OnlineGame extends Activity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    private void getGamesRequest() {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("token", token);
-            jsonObject.put("action", "getGame");
-            new Get_JSON_Reply_class().execute(jsonObject.toString());
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
 }

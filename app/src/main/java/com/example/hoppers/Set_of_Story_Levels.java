@@ -67,10 +67,11 @@ public class Set_of_Story_Levels extends Activity {
 
         ArrayList<Integer> data = new ArrayList<>();
 
+        //selecting all the levels from database
+
         String selectQuery = "SELECT  * FROM " + DatabaseHandler.TABLE_DIFFICULTIES + " where "+DatabaseHandler.DIFFICULTY +" = " + getIntent().getIntExtra("Level",0);
 
         Cursor cursor = db.rawQuery(selectQuery, null);
-
 
             if (cursor.moveToFirst()) {
                 do {
